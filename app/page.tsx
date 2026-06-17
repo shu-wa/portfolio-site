@@ -1,23 +1,5 @@
-const projects = [
-  {
-    title: "飲食店注文・在庫管理システム",
-    description:
-      "JavaとMySQLを用いて、店舗選択、メニュー検索、注文、在庫管理、売上確認を行えるCLIシステムを作成しました。",
-    tech: ["Java", "MySQL", "JDBC"],
-  },
-  {
-    title: "マインスイーパーRPG",
-    description:
-      "Pyxelを用いて、マインスイーパーにHP・敵の攻撃・旗による防御要素を追加したゲームを作成しました。",
-    tech: ["Python", "Pyxel"],
-  },
-  {
-    title: "8パズル自動解法",
-    description:
-      "Pythonで8パズルを実装し、BFSによる自動解法機能を追加しました。",
-    tech: ["Python", "アルゴリズム"],
-  },
-];
+import Link from "next/link";
+import { projects } from "../data/projects";
 
 export default function Home() {
   return (
@@ -67,7 +49,7 @@ export default function Home() {
                   {project.description}
                 </p>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="mb-5 flex flex-wrap gap-2">
                   {project.tech.map((tech) => (
                     <span
                       key={tech}
@@ -77,6 +59,13 @@ export default function Home() {
                     </span>
                   ))}
                 </div>
+
+                <Link
+                  href={`/projects/${project.slug}`}
+                  className="text-sm font-semibold text-cyan-400 hover:text-cyan-300"
+                >
+                  詳細を見る →
+                </Link>
               </article>
             ))}
           </div>
