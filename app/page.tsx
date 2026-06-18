@@ -28,7 +28,7 @@ export default function Home() {
             制作物を見る
           </a>
           <a
-            href="https://github.com/"
+            href="https://github.com/shu-wa"
             className="rounded-xl border border-slate-600 px-5 py-3 font-semibold transition hover:bg-slate-800"
           >
             GitHub
