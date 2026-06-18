@@ -1,3 +1,4 @@
+import ContactForm from "./components/ContactForm";
 import ProjectList from "./components/ProjectList";
 
 export default function Home() {
@@ -37,6 +38,11 @@ export default function Home() {
         <section id="projects">
           <h2 className="mb-6 text-2xl font-bold">Projects</h2>
           <ProjectList />
+        </section>
+
+        <section id="contact" className="mt-20">
+          <h2 className="mb-6 text-2xl font-bold">Contact</h2>
+          <ContactForm />
         </section>
       </section>
     </main>
