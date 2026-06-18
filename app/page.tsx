@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { projects } from "../data/projects";
+import ProjectList from "./components/ProjectList";
 
 export default function Home() {
   return (
@@ -37,38 +36,7 @@ export default function Home() {
 
         <section id="projects">
           <h2 className="mb-6 text-2xl font-bold">Projects</h2>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {projects.map((project) => (
-              <article
-                key={project.title}
-                className="rounded-2xl border border-slate-800 bg-slate-900 p-6"
-              >
-                <h3 className="mb-3 text-xl font-bold">{project.title}</h3>
-                <p className="mb-4 text-sm leading-6 text-slate-300">
-                  {project.description}
-                </p>
-
-                <div className="mb-5 flex flex-wrap gap-2">
-                  {project.tech.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded-full bg-slate-800 px-3 py-1 text-xs text-cyan-300"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-
-                <Link
-                  href={`/projects/${project.slug}`}
-                  className="text-sm font-semibold text-cyan-400 hover:text-cyan-300"
-                >
-                  詳細を見る →
-                </Link>
-              </article>
-            ))}
-          </div>
+          <ProjectList />
         </section>
       </section>
     </main>
