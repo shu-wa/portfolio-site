@@ -44,12 +44,18 @@ export async function POST(request: Request) {
     return Response.json({
       message: "お問い合わせを受け付けました。",
     });
-  } catch (error) {
-    console.error("お問い合わせ保存エラー", error);
+    } catch (error) {
+        console.error("お問い合わせ保存エラー", error);
 
-    return Response.json(
-      { error: "お問い合わせの保存に失敗しました。" },
-      { status: 500 }
-    );
-  }
+        const message =
+        error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+
+        return Response.json(
+        {
+            error: "お問い合わせの保存に失敗しました。",
+            detail: message,
+        },
+        { status: 500 }
+        );
+    }
 }
