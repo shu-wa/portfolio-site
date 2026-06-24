@@ -16,6 +16,7 @@ type ProjectPageProps = {
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
+
   const project = projects.find((project) => project.slug === slug);
 
   if (!project) {
@@ -62,14 +63,65 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </ul>
         </section>
 
-        <section className="mb-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="mb-4 text-2xl font-bold">工夫した点</h2>
-          <ul className="list-disc space-y-2 pl-5 text-slate-300">
-            {project.points.map((point) => (
-              <li key={point}>{point}</li>
-            ))}
-          </ul>
-        </section>
+        {project.designDecisions.length > 0 && (
+          <section className="mb-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <h2 className="mb-4 text-2xl font-bold">設計の工夫と意思決定</h2>
+
+            <div className="space-y-6">
+              {project.designDecisions.map((decision) => (
+                <article
+                  key={decision.title}
+                  className="rounded-xl bg-slate-950 p-5"
+                >
+                  <h3 className="mb-3 text-lg font-bold text-cyan-300">
+                    {decision.title}
+                  </h3>
+
+                  <div className="space-y-3 text-sm leading-7 text-slate-300">
+                    <p>
+                      <span className="font-bold text-white">何をしたか：</span>
+                      {decision.what}
+                    </p>
+
+                    <p>
+                      <span className="font-bold text-white">
+                        なぜそうしたか：
+                      </span>
+                      {decision.why}
+                    </p>
+
+                    <p>
+                      <span className="font-bold text-white">効果：</span>
+                      {decision.effect}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {project.problems.length > 0 && (
+          <section className="mb-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <h2 className="mb-4 text-2xl font-bold">苦労した点・改善した点</h2>
+            <ul className="list-disc space-y-2 pl-5 text-slate-300">
+              {project.problems.map((problem) => (
+                <li key={problem}>{problem}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {project.learnings.length > 0 && (
+          <section className="mb-10 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <h2 className="mb-4 text-2xl font-bold">開発を通じて学んだこと</h2>
+            <ul className="list-disc space-y-2 pl-5 text-slate-300">
+              {project.learnings.map((learning) => (
+                <li key={learning}>{learning}</li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <h2 className="mb-4 text-2xl font-bold">今後の改善</h2>
