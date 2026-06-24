@@ -1,5 +1,6 @@
 "use client";
 
+import SeedProjectsButton from "../components/SeedProjectsButton";
 import ContactList from "../components/ContactList";
 import { Authenticator } from "@aws-amplify/ui-react";
 
@@ -33,6 +34,10 @@ export default function AdminPage() {
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
                 <h2 className="mb-6 text-2xl font-bold">お問い合わせ管理</h2>
                 <ContactList />
+              </div>
+              
+              <div className="mt-10">
+                <SeedProjectsButton />
               </div>
             </section>
           )}

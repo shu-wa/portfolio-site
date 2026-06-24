@@ -1,4 +1,6 @@
-export const projects = [
+import type { Project } from "../types/project";
+
+export const projects:Project[] = [
   {
     slug: "restaurant-order-system",
     title: "飲食店注文・在庫管理システム",
@@ -331,4 +333,4 @@ export const projects = [
     ], 
   }
   
-] as const;
+];
