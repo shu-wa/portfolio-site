@@ -1,97 +1,88 @@
+import AboutSection from "./components/AboutSection";
 import ContactForm from "./components/ContactForm";
 import ProjectList from "./components/ProjectList";
+import SiteHeader from "./components/SiteHeader";
+import SplashScreen from "./components/SplashScreen";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <section className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-16">
-        <p className="mb-4 text-sm font-semibold text-cyan-400">
-          Portfolio Site
-        </p>
+    <main className="bg-slate-950 text-white">
+      <SplashScreen />
+      <SiteHeader />
 
-        <h1 className="mb-6 text-4xl font-bold leading-tight md:text-6xl">
-          玉木秀杷の
-          <br />
-          ポートフォリオ
-        </h1>
+      <section
+        id="top"
+        className="relative flex min-h-screen items-center overflow-hidden px-6"
+      >
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
 
-        <p className="mb-8 max-w-3.5xl text-lg leading-8 text-slate-300">
-          Java、SQL、Pythonを中心に、Webアプリケーションやゲーム制作を通して、設計・実装・改善を学んでいます。<br/>
-          今後はAWSやAPI連携を取り入れたWebポートフォリオとして拡張していきます。
-        </p>
+        <div className="absolute inset-0 bg-black/55" />
 
-        <div className="mb-14 flex gap-4">
-          <a
-            href="#projects"
-            className="rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
-          >
-            制作物を見る
-          </a>
-          <a
-            href="https://github.com/shu-wa"
-            className="rounded-xl border border-slate-600 px-5 py-3 font-semibold transition hover:bg-slate-800"
-          >
-            GitHub
-          </a>
+        <div className="relative z-10 mx-auto max-w-6xl">
+          <p className="mb-5 text-sm font-semibold tracking-[0.5em] text-cyan-300">
+            WEB / AWS / GAME / DATABASE
+          </p>
+
+          <h1 className="max-w-5xl text-5xl font-bold leading-tight md:text-7xl">
+            Shuwa Tamaki&apos;s
+            <br />
+            Portfolio
+          </h1>
+
+          <p className="mt-8 max-w-2xl text-lg leading-8 text-slate-200">
+            Next.js、TypeScript、AWS、Java、Pythonを用いて制作したWebアプリ、
+            ゲーム、データベースシステムを紹介しています。
+          </p>
+
+          <div className="mt-10 flex flex-wrap gap-4">
+            <a
+              href="#projects"
+              className="rounded-full bg-cyan-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-cyan-300"
+            >
+              View Works
+            </a>
+
+            <a
+              href="#about"
+              className="rounded-full border border-white/40 px-6 py-3 font-bold text-white transition hover:bg-white hover:text-black"
+            >
+              About Me
+            </a>
+          </div>
         </div>
 
-        <section id="projects">
-          <h2 className="mb-6 text-2xl font-bold">Projects</h2>
+        <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-sm tracking-[0.4em] text-slate-300">
+          SCROLL
+        </div>
+      </section>
+
+      <AboutSection />
+
+      <section id="projects" className="bg-slate-950 px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <p className="mb-3 text-sm font-semibold tracking-[0.4em] text-cyan-400">
+            WORKS
+          </p>
+          <h2 className="mb-8 text-4xl font-bold">制作物一覧</h2>
           <ProjectList />
-        </section>
+        </div>
+      </section>
 
-        <section id="architecture" className="mt-20">
-          <h2 className="mb-6 text-2xl font-bold">System Architecture</h2>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <p className="mb-6 leading-7 text-slate-300">
-              このポートフォリオサイトは、Next.jsで画面とAPIを実装し、
-              AWS Amplify Hostingで公開しています。お問い合わせ内容は
-              DynamoDBに保存し、管理画面ではCognito認証を通じて
-              保存されたお問い合わせ一覧を確認できるようにしています。
-            </p>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-xl bg-slate-950 p-4">
-                <h3 className="mb-2 font-bold text-cyan-300">Frontend</h3>
-                <p className="text-sm leading-6 text-slate-300">
-                  Next.js、TypeScript、Tailwind CSSを用いて、作品一覧、
-                  作品詳細、お問い合わせフォーム、管理画面を実装しています。
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-slate-950 p-4">
-                <h3 className="mb-2 font-bold text-cyan-300">Backend API</h3>
-                <p className="text-sm leading-6 text-slate-300">
-                  Next.js API Routeを用いて、作品情報取得API、
-                  お問い合わせ送信API、お問い合わせ一覧取得APIを実装しています。
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-slate-950 p-4">
-                <h3 className="mb-2 font-bold text-cyan-300">AWS</h3>
-                <p className="text-sm leading-6 text-slate-300">
-                  AWS Amplify Hostingで公開し、DynamoDBにお問い合わせ内容を保存しています。
-                  IAMロールを用いて安全にAWSリソースへアクセスしています。
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-slate-950 p-4">
-                <h3 className="mb-2 font-bold text-cyan-300">Authentication</h3>
-                <p className="text-sm leading-6 text-slate-300">
-                  Amazon Cognitoを用いて管理画面のログイン機能を実装し、
-                  管理者のみが問い合わせ一覧を確認できるようにしています。
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-        <section id="contact" className="mt-20">
-          <h2 className="mb-6 text-2xl font-bold">Contact</h2>
+      <section id="contact" className="bg-slate-950 px-6 py-24">
+        <div className="mx-auto max-w-4xl">
+          <p className="mb-3 text-sm font-semibold tracking-[0.4em] text-cyan-400">
+            CONTACT
+          </p>
+          <h2 className="mb-8 text-4xl font-bold">Contact</h2>
           <ContactForm />
-        </section>
+        </div>
       </section>
     </main>
   );
