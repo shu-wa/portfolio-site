@@ -40,6 +40,54 @@ export default function Home() {
           <ProjectList />
         </section>
 
+        <section id="architecture" className="mt-20">
+          <h2 className="mb-6 text-2xl font-bold">System Architecture</h2>
+
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <p className="mb-6 leading-7 text-slate-300">
+              このポートフォリオサイトは、Next.jsで画面とAPIを実装し、
+              AWS Amplify Hostingで公開しています。お問い合わせ内容は
+              DynamoDBに保存し、管理画面ではCognito認証を通じて
+              保存されたお問い合わせ一覧を確認できるようにしています。
+            </p>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-xl bg-slate-950 p-4">
+                <h3 className="mb-2 font-bold text-cyan-300">Frontend</h3>
+                <p className="text-sm leading-6 text-slate-300">
+                  Next.js、TypeScript、Tailwind CSSを用いて、作品一覧、
+                  作品詳細、お問い合わせフォーム、管理画面を実装しています。
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-950 p-4">
+                <h3 className="mb-2 font-bold text-cyan-300">Backend API</h3>
+                <p className="text-sm leading-6 text-slate-300">
+                  Next.js API Routeを用いて、作品情報取得API、
+                  お問い合わせ送信API、お問い合わせ一覧取得APIを実装しています。
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-950 p-4">
+                <h3 className="mb-2 font-bold text-cyan-300">AWS</h3>
+                <p className="text-sm leading-6 text-slate-300">
+                  AWS Amplify Hostingで公開し、DynamoDBにお問い合わせ内容を保存しています。
+                  IAMロールを用いて安全にAWSリソースへアクセスしています。
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-950 p-4">
+                <h3 className="mb-2 font-bold text-cyan-300">Authentication</h3>
+                <p className="text-sm leading-6 text-slate-300">
+                  Amazon Cognitoを用いて管理画面のログイン機能を実装し、
+                  管理者のみが問い合わせ一覧を確認できるようにしています。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
         <section id="contact" className="mt-20">
           <h2 className="mb-6 text-2xl font-bold">Contact</h2>
           <ContactForm />
