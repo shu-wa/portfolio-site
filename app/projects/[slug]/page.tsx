@@ -1,12 +1,20 @@
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { projects } from "../../../data/projects";
+import { projects as fallbackProjects } from "../../../data/projects";
+import type { Project } from "../../../types/project";
 
-export function generateStaticParams() {
-  return projects.map((project) => ({
-    slug: project.slug,
-  }));
-}
+export const dynamic = "force-dynamic";
+
+const TABLE_NAME = "PortfolioProjects";
+const REGION = "ap-southeast-2";
+
+const dynamoDbClient = new DynamoDBClient({
+  region: REGION,
+});
+
+const documentClient = DynamoDBDocumentClient.from(dynamoDbClient);
 
 type ProjectPageProps = {
   params: Promise<{
@@ -14,10 +22,34 @@ type ProjectPageProps = {
   }>;
 };
 
+async function getProject(slug: string): Promise<Project | null> {
+  try {
+    const result = await documentClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          slug,
+        },
+      })
+    );
+
+    if (result.Item) {
+      return result.Item as Project;
+    }
+  } catch (error) {
+    console.error("DynamoDBから作品詳細を取得できませんでした", error);
+  }
+
+  const fallbackProject = fallbackProjects.find(
+    (project) => project.slug === slug
+  );
+
+  return fallbackProject ?? null;
+}
+
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-
-  const project = projects.find((project) => project.slug === slug);
+  const project = await getProject(slug);
 
   if (!project) {
     notFound();
