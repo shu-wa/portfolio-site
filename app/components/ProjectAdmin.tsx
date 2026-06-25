@@ -3,6 +3,8 @@
 import { fetchAuthSession } from "aws-amplify/auth";
 import { useEffect, useState } from "react";
 import type { DesignDecision,Project } from "../../types/project";
+import type { DragEvent } from "react";
+
 
 const emptyProject: Project = {
   slug: "",
@@ -29,6 +31,33 @@ function textToArray(text: string) {
     .filter(Boolean);
 }
 
+function normalizeProjectOrder(projects: Project[]) {
+  return [...projects]
+    .sort((a, b) => {
+      const orderDiff = (a.order ?? 999) - (b.order ?? 999);
+
+      if (orderDiff !== 0) {
+        return orderDiff;
+      }
+
+      return a.title.localeCompare(b.title, "ja");
+    })
+    .map((project, index) => ({
+      ...project,
+      order: index + 1,
+    }));
+}
+
+function moveArrayItem<T>(items: T[], fromIndex: number, toIndex: number) {
+  const nextItems = [...items];
+  const [movedItem] = nextItems.splice(fromIndex, 1);
+  nextItems.splice(toIndex, 0, movedItem);
+
+  return nextItems;
+}
+
+
+
 const emptyDecision: DesignDecision = {
   title: "",
   what: "",
@@ -44,6 +73,8 @@ export default function ProjectAdmin() {
   const [originalSlug, setOriginalSlug] = useState("");
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+    const [draggingSlug, setDraggingSlug] = useState("");
 
   const [techText, setTechText] = useState("");
   const [featuresText, setFeaturesText] = useState("");
@@ -62,15 +93,20 @@ export default function ProjectAdmin() {
 
   async function fetchProjects() {
     try {
-      const response = await fetch("/api/projects");
-      const data = await response.json();
+        const response = await fetch("/api/projects");
+        const data = await response.json();
 
-      setProjects(data);
+        if (!response.ok) {
+        setMessage(data.error ?? "作品一覧の取得に失敗しました。");
+        return;
+        }
+
+        setProjects(normalizeProjectOrder(data));
     } catch (error) {
-      console.error("作品一覧取得エラー", error);
-      setMessage("作品一覧の取得に失敗しました。");
+        console.error("作品一覧取得エラー", error);
+        setMessage("作品一覧の取得に失敗しました。");
     }
-  }
+    }
 
   function selectProject(project: Project) {
         const normalizedProject: Project = {
@@ -94,7 +130,10 @@ export default function ProjectAdmin() {
     }
 
     function createNewProject() {
-        setSelectedProject({ ...emptyProject });
+        setSelectedProject({
+            ...emptyProject,
+            order: projects.length + 1,
+        });
         setOriginalSlug("");
         setTechText("");
         setFeaturesText("");
@@ -173,7 +212,10 @@ export default function ProjectAdmin() {
                 decision.why.trim() ||
                 decision.effect.trim()
             ),
-            order: Number(selectedProject.order ?? 999),
+            order:
+        originalSlug === ""
+            ? projects.length + 1
+            : Number(selectedProject.order ?? projects.length + 1),
         };
 
       if (!projectToSave.slug || !projectToSave.title) {
@@ -215,6 +257,112 @@ export default function ProjectAdmin() {
       setIsSaving(false);
     }
   }
+
+  function handleProjectDragStart(slug: string) {
+        setDraggingSlug(slug);
+        }
+
+        function handleProjectDragOver(event: DragEvent<HTMLDivElement>) {
+        event.preventDefault();
+        }
+
+        function handleProjectDrop(targetSlug: string) {
+        if (!draggingSlug || draggingSlug === targetSlug) {
+            setDraggingSlug("");
+            return;
+        }
+
+        const fromIndex = projects.findIndex(
+            (project) => project.slug === draggingSlug
+        );
+        const toIndex = projects.findIndex((project) => project.slug === targetSlug);
+
+        if (fromIndex === -1 || toIndex === -1) {
+            setDraggingSlug("");
+            return;
+        }
+
+        const reorderedProjects = moveArrayItem(projects, fromIndex, toIndex).map(
+            (project, index) => ({
+            ...project,
+            order: index + 1,
+            })
+        );
+
+        setProjects(reorderedProjects);
+
+        const selected = reorderedProjects.find(
+            (project) => project.slug === selectedProject.slug
+        );
+
+        if (selected) {
+            setSelectedProject(selected);
+        }
+
+        setDraggingSlug("");
+        setMessage("表示順を変更しました。反映するには「表示順を保存」を押してください。");
+        }
+
+        function handleProjectDragEnd() {
+        setDraggingSlug("");
+    }
+
+    async function saveProjectOrder() {
+        try {
+            setIsSavingOrder(true);
+            setMessage("");
+
+            const idToken = await getIdToken();
+
+            if (!idToken) {
+            setMessage("ログイン情報を取得できませんでした。");
+            return;
+            }
+
+            const orderedProjects = projects.map((project, index) => ({
+            ...project,
+            order: index + 1,
+            }));
+
+            const responses = await Promise.all(
+            orderedProjects.map((project) =>
+                fetch(`/api/projects/${project.slug}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${idToken}`,
+                },
+                body: JSON.stringify(project),
+                })
+            )
+            );
+
+            const failedResponse = responses.find((response) => !response.ok);
+
+            if (failedResponse) {
+            setMessage("表示順の保存に失敗しました。");
+            return;
+            }
+
+            setProjects(orderedProjects);
+
+            const selected = orderedProjects.find(
+            (project) => project.slug === selectedProject.slug
+            );
+
+            if (selected) {
+            setSelectedProject(selected);
+            }
+
+            setMessage("表示順を保存しました。");
+            await fetchProjects();
+        } catch (error) {
+            console.error("表示順保存エラー", error);
+            setMessage("通信エラーが発生しました。");
+        } finally {
+            setIsSavingOrder(false);
+        }
+    }
 
   async function deleteProject(slug: string) {
     const confirmed = window.confirm("この作品を削除しますか？");
@@ -274,16 +422,69 @@ export default function ProjectAdmin() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-3">
-          {projects.map((project) => (
-            <button
-              key={project.slug}
-              onClick={() => selectProject(project)}
-              className="block w-full rounded-xl border border-slate-800 bg-slate-950 p-4 text-left transition hover:border-cyan-400"
-            >
-              <p className="font-bold">{project.title}</p>
-              <p className="mt-1 text-sm text-slate-400">{project.slug}</p>
-            </button>
-          ))}
+            <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                    <p className="font-bold text-cyan-300">表示順</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-400">
+                    作品をドラッグして順番を変更できます。
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={saveProjectOrder}
+                    disabled={isSavingOrder}
+                    className="rounded-lg bg-cyan-400 px-3 py-2 text-xs font-bold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-50"
+                >
+                    {isSavingOrder ? "保存中..." : "保存"}
+                </button>
+                </div>
+
+                <div className="space-y-2">
+                {projects.map((project) => {
+                    const isSelected = selectedProject.slug === project.slug;
+                    const isDragging = draggingSlug === project.slug;
+
+                    return (
+                    <div
+                        key={project.slug}
+                        draggable
+                        onDragStart={() => handleProjectDragStart(project.slug)}
+                        onDragOver={handleProjectDragOver}
+                        onDrop={() => handleProjectDrop(project.slug)}
+                        onDragEnd={handleProjectDragEnd}
+                        className={`rounded-xl border p-3 transition ${
+                        isSelected
+                            ? "border-cyan-400 bg-cyan-950/40"
+                            : "border-slate-800 bg-slate-900"
+                        } ${isDragging ? "opacity-40" : "opacity-100"}`}
+                    >
+                        <button
+                        type="button"
+                        onClick={() => selectProject(project)}
+                        className="flex w-full items-center gap-3 text-left"
+                        >
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-950 text-sm font-black text-cyan-300">
+                            {project.order}
+                        </span>
+
+                        <span className="min-w-0 flex-1">
+                            <span className="block truncate font-bold">
+                            {project.title}
+                            </span>
+                            <span className="mt-1 block truncate text-sm text-slate-400">
+                            {project.slug}
+                            </span>
+                        </span>
+
+                        <span className="cursor-grab text-slate-500">☰</span>
+                        </button>
+                    </div>
+                    );
+                })}
+                </div>
+            </div>
         </div>
 
         <div className="space-y-4 lg:col-span-2">
@@ -308,19 +509,16 @@ export default function ProjectAdmin() {
                         )}
           </label>
 
-          <label className="block">
-            <span className="mb-1 block text-sm font-semibold">タイトル</span>
-            <input
-              value={selectedProject.title}
-              onChange={(event) =>
-                setSelectedProject({
-                  ...selectedProject,
-                  title: event.target.value,
-                })
-              }
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white"
-            />
-          </label>
+          <div className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3">
+                <p className="mb-1 text-sm font-semibold">表示順</p>
+                <p className="text-2xl font-black text-cyan-300">
+                    {selectedProject.order ?? "-"}
+                </p>
+                <p className="mt-2 text-xs leading-5 text-slate-400">
+                    表示順は左側の作品一覧をドラッグして変更してください。
+                    同じ数値が入らないよう、保存時に1から順番に自動で振り直します。
+                </p>
+            </div>
 
           <label className="block">
             <span className="mb-1 block text-sm font-semibold">説明</span>
