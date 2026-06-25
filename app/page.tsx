@@ -16,7 +16,7 @@ export default function Home() {
       >
         <video
           className="absolute inset-0 h-full w-full animate-[heroFadeIn_3.2s_ease-out_both] object-cover"
-          src="/hero.mp4"
+          src="/hero.MP4"
           autoPlay
           muted
           loop
