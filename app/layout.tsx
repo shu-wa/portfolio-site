@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "玉木秀杷のポートフォリオ",
-  description: "Next.jsとAWSを用いたポートフォリオサイトです。",
+  title: "Shuwa Tamaki's Portfolio",
+  description: "Portfolio site built with Next.js and AWS.",
 };
 
 export default function RootLayout({

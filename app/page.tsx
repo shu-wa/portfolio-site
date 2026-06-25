@@ -12,10 +12,10 @@ export default function Home() {
 
       <section
         id="top"
-        className="relative flex min-h-screen items-center overflow-hidden px-6"
+        className="relative flex min-h-screen items-end overflow-hidden px-6 pb-24 pt-32 md:px-12 md:pb-28"
       >
         <video
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full animate-[heroFadeIn_3.2s_ease-out_both] object-cover"
           src="/hero.mp4"
           autoPlay
           muted
@@ -23,20 +23,24 @@ export default function Home() {
           playsInline
         />
 
-        <div className="absolute inset-0 bg-black/55" />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/20" />
 
-        <div className="relative z-10 mx-auto max-w-6xl">
-          <p className="mb-5 text-sm font-semibold tracking-[0.5em] text-cyan-300">
+        <div className="relative z-10 max-w-6xl">
+          <p className="mb-5 text-xs font-semibold tracking-[0.55em] text-cyan-300 md:text-sm">
             WEB / AWS / GAME / DATABASE
           </p>
 
-          <h1 className="max-w-5xl text-5xl font-bold leading-tight md:text-7xl">
-            Shuwa Tamaki&apos;s
+          <h1 className="max-w-5xl text-5xl font-black leading-[0.95] tracking-tight md:text-8xl">
+            Shuwa
+            <br />
+            Tamaki&apos;s
             <br />
             Portfolio
           </h1>
 
-          <p className="mt-8 max-w-2xl text-lg leading-8 text-slate-200">
+          <p className="mt-8 max-w-2xl text-base leading-8 text-slate-200 md:text-lg">
             Next.js、TypeScript、AWS、Java、Pythonを用いて制作したWebアプリ、
             ゲーム、データベースシステムを紹介しています。
           </p>
@@ -58,10 +62,12 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-sm tracking-[0.4em] text-slate-300">
-          SCROLL
+        <div className="absolute bottom-8 right-6 z-10 text-xs tracking-[0.4em] text-slate-300 md:right-12">
+          <span className="inline-block animate-bounce">SCROLL</span>
         </div>
       </section>
+
+      
 
       <AboutSection />
 
