@@ -50,15 +50,19 @@ export default function AboutSection() {
                     PROFILE
                   </p>
 
-                  <h3 className="text-4xl font-bold md:text-5xl">
-                    作る理由を説明できる開発者へ
-                  </h3>
+                    <h3 className="text-4xl font-bold md:text-5xl">
+                    目的に合わせて設計・実装できる開発者へ
+                    </h3>
 
-                  <p className="mt-8 text-lg leading-9 text-slate-300">
-                    ただ動くものを作るだけでなく、なぜその設計にしたのか、
-                    どこで苦労し、どう改善したのかを説明できる開発を意識しています。
-                    このポートフォリオも、静的な紹介ページではなく、AWSと連携した管理機能付きWebアプリとして構築しました。
-                  </p>
+                    <p className="mt-8 text-lg leading-9 text-slate-300">
+                    フロントエンドだけでなく、バックエンド、データベース、
+                    認証、クラウド環境まで含めて理解し、ただ動くものを作るだけでなく、
+                    なぜその構成にしたのかを説明できる開発を意識しています。
+                    <br />
+                    <br />
+                    このポートフォリオも、静的な紹介ページではなく、
+                    AWSと連携した管理機能付きWebアプリとして構築しました。
+                    </p>
                 </div>
               </div>
             </ScrollReveal>
