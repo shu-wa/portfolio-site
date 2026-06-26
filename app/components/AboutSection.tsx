@@ -6,7 +6,7 @@ import MobileGuitarNeck from "./MobileGuitarNeck";
 export default function AboutSection() {
   return (
     <section id="about" className="relative bg-slate-950 text-white">
-      <div className="mx-auto flex max-w-7xl gap-10 px-6">
+      <div className="mx-auto flex max-w-7xl gap-10 px-4 sm:px-6">
         <VerticalGuitarNeck />
 
         <div className="min-w-0 flex-1">
@@ -65,21 +65,31 @@ export default function AboutSection() {
           </section>
 
           <section className="flex min-h-screen items-center py-24">
-            <ScrollReveal direction="left" className="w-full">
-              <p className="mb-4 text-sm font-semibold tracking-[0.4em] text-cyan-400">
-                History
-              </p>
+                <ScrollReveal direction="left" className="w-full">
+                    <p className="mb-4 text-sm font-semibold tracking-[0.4em] text-cyan-400">
+                    HISTORY
+                    </p>
 
-              <h3 className="text-4xl font-bold md:text-5xl">経歴</h3>
+                    <h3 className="text-4xl font-bold md:text-5xl">経歴</h3>
 
-                <p className="mt-8 max-w-4xl text-lg leading-9 text-slate-300">
-                    2021年　　　東京都立多摩科学技術高校　入学<br/>
-                    2024年　　　東京都立多摩科学技術高校　卒業<br/>
-                    2024年　　　芝浦工業大学　入学
-                </p>
-              
-            </ScrollReveal>
-          </section>
+                    <div className="mt-8 max-w-4xl space-y-4 text-lg leading-9 text-slate-300">
+                    <div className="grid grid-cols-[5rem_1fr] gap-4">
+                        <span className="font-semibold text-cyan-300">2021年</span>
+                        <span>東京都立多摩科学技術高校 入学</span>
+                    </div>
+
+                    <div className="grid grid-cols-[5rem_1fr] gap-4">
+                        <span className="font-semibold text-cyan-300">2024年</span>
+                        <span>東京都立多摩科学技術高校 卒業</span>
+                    </div>
+
+                    <div className="grid grid-cols-[5rem_1fr] gap-4">
+                        <span className="font-semibold text-cyan-300">2024年</span>
+                        <span>芝浦工業大学 入学</span>
+                    </div>
+                    </div>
+                </ScrollReveal>
+            </section>
 
           <section className="flex min-h-screen items-center py-24">
             <ScrollReveal direction="right" className="w-full">
@@ -109,70 +119,68 @@ export default function AboutSection() {
             </ScrollReveal>
           </section>
 
-          <section className="flex min-h-screen items-center py-24">
-                <ScrollReveal direction="left" className="w-full">
-                    <div className="sticky top-20 z-20 mb-8 lg:hidden">
+          <section className="relative flex min-h-screen items-center py-24">
+                <div className="sticky top-20 z-20 mb-8 w-full lg:hidden">
                     <MobileGuitarNeck />
-                    </div>
+                </div>
 
+                <ScrollReveal direction="left" className="w-full">
                     <p className="mb-4 text-sm font-semibold tracking-[0.4em] text-cyan-400">
                     HOBBY
                     </p>
 
-                    <h3 className="text-4xl font-bold md:text-5xl">趣味・好きなこと</h3>
+                    <h3 className="text-4xl font-bold md:text-5xl">
+                    趣味・好きなこと
+                    </h3>
 
                     <div className="mt-10 grid gap-5 md:grid-cols-2">
-                        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-7">
-                            <h4 className="mb-3 text-xl font-bold text-cyan-300">
-                            Guitar
-                            </h4>
-                            <p className="leading-8 text-slate-300">
-                            大学からギターを始めさせていただきました。
-                            仲間にも恵まれて、とても充実したバンド活動が出来ています。
-                            バイトで稼いでお金はすべてこちらに消えていっています～
-                            </p>
-                        </div>
+                    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-7">
+                        <h4 className="mb-3 text-xl font-bold text-cyan-300">
+                        Guitar
+                        </h4>
+                        <p className="leading-8 text-slate-300">
+                        大学からギターを始めさせていただきました。
+                        仲間にも恵まれて、とても充実したバンド活動が出来ています。
+                        バイトで稼いだお金はほとんどこちらに消えています。
+                        </p>
+                    </div>
 
-                        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-7">
-                            <h4 className="mb-3 text-xl font-bold text-cyan-300">
-                            Soccer
-                            </h4>
-                            <p className="leading-8 text-slate-300">
-                            小学生から高校生の計12年間をサッカーに費やしてきました！
-                            あまり気乗りせず、嫌になりながらやっていたところもありましたが、
-                            今考えると自分を形作った宝物でもあるなと感じています。
-                            </p>
-                        </div>
+                    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-7">
+                        <h4 className="mb-3 text-xl font-bold text-cyan-300">
+                        Soccer
+                        </h4>
+                        <p className="leading-8 text-slate-300">
+                        小学生から高校生まで、計12年間サッカーに取り組んできました。
+                        大変なこともありましたが、今では自分を形作った大切な経験だと感じています。
+                        </p>
+                    </div>
 
-                        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-7">
-                            <h4 className="mb-3 text-xl font-bold text-cyan-300">
-                            Video Game
-                            </h4>
-                            <p className="leading-8 text-slate-300">
-                            FPSからサンドボックスまで幅広いカテゴリーのゲームをやってきました！
-                            高校生の放課後はほぼ毎日同級生と夜中まで遊んでいました。
-                            成績は言わずもがなでしたね。
-                            </p>
-                        </div>
+                    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-7">
+                        <h4 className="mb-3 text-xl font-bold text-cyan-300">
+                        Video Game
+                        </h4>
+                        <p className="leading-8 text-slate-300">
+                        FPSからサンドボックスまで、幅広いジャンルのゲームを遊んできました。
+                        ゲームのUIや体験設計にも興味を持つきっかけになっています。
+                        </p>
+                    </div>
 
-                        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-7">
-                            <h4 className="mb-3 text-xl font-bold text-cyan-300">
-                            Snowboard
-                            </h4>
-                            <p className="leading-8 text-slate-300">
-                            両親の影響で幼いころから毎年滑りに行きます。
-                            スキーも滑れますが個人的にはスノーボードのほうが楽しく感じます。
-                            </p>
-                        </div>
+                    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-7">
+                        <h4 className="mb-3 text-xl font-bold text-cyan-300">
+                        Snowboard
+                        </h4>
+                        <p className="leading-8 text-slate-300">
+                        両親の影響で、幼いころから毎年滑りに行っています。
+                        スキーもできますが、個人的にはスノーボードの方が楽しく感じます。
+                        </p>
+                    </div>
                     </div>
 
                     <p className="mt-8 max-w-4xl text-lg leading-9 text-slate-300">
-                    趣味の中でも特にはまっているギター。
+                    趣味の中でも特にハマっているのがギターです。
                     PC表示では左側に縦型のギターネックを、スマホ表示ではこのセクション上部に
                     横向きのギターネックを表示し、クリックすると音が鳴るようにしています。
                     </p>
-
-                    
                 </ScrollReveal>
             </section>
 
