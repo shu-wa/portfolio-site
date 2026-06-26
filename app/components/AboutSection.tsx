@@ -5,7 +5,10 @@ import MobileGuitarNeck from "./MobileGuitarNeck";
 
 export default function AboutSection() {
   return (
-    <section id="about" className="relative bg-slate-950 text-white">
+    <section
+        id="about"
+        className="relative overflow-x-hidden bg-slate-950 text-white"
+    >
       <div className="mx-auto flex max-w-7xl gap-10 px-4 sm:px-6">
         <VerticalGuitarNeck />
 
@@ -123,12 +126,12 @@ export default function AboutSection() {
             </ScrollReveal>
           </section>
 
-          <section className="relative flex min-h-screen items-center py-24">
-                <div className="sticky top-20 z-20 mb-8 w-full lg:hidden">
+          <section className="relative flex min-h-screen flex-col justify-center overflow-hidden py-24">
+                <div className="sticky top-20 z-20 mb-8 w-full min-w-0 lg:hidden">
                     <MobileGuitarNeck />
                 </div>
 
-                <ScrollReveal direction="left" className="w-full">
+                <ScrollReveal direction="left" className="w-full min-w-0">
                     <p className="mb-4 text-sm font-semibold tracking-[0.4em] text-cyan-400">
                     HOBBY
                     </p>

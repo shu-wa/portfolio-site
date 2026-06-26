@@ -39,11 +39,11 @@ export default function ScrollReveal({
     return () => observer.disconnect();
   }, []);
 
-  const hiddenClass = {
-    left: "-translate-x-32 opacity-0",
-    right: "translate-x-32 opacity-0",
-    up: "translate-y-20 opacity-0",
-  }[direction];
+    const hiddenClass = {
+        left: "-translate-x-10 opacity-0 md:-translate-x-32",
+        right: "translate-x-10 opacity-0 md:translate-x-32",
+        up: "translate-y-20 opacity-0",
+    }[direction];
 
   return (
     <div
