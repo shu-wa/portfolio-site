@@ -1,18 +1,17 @@
 import Image from "next/image";
 import ScrollReveal from "./ScrollReveal";
-import VerticalGuitarNeck from "./VerticalGuitarNeck";
+import DesktopGuitarFloating from "./DesktopGuitarFloating";
 import MobileGuitarFloating from "./MobileGuitarFloating";
-import MobileGuitarNeck from "./MobileGuitarNeck";
+
 
 export default function AboutSection() {
   return (
-    <section
-        id="about"
-        className="relative overflow-x-clip bg-slate-950 text-white"
-    >
-      <div className="mx-auto flex max-w-7xl gap-10 px-4 sm:px-6">
-        <VerticalGuitarNeck />
-        <MobileGuitarFloating />
+    <section id="about" className="relative bg-slate-950 text-white">
+      <DesktopGuitarFloating />
+      <MobileGuitarFloating />
+      
+       <div className="mx-auto grid max-w-7xl grid-cols-1 px-4 sm:px-6 lg:grid-cols-[17rem_minmax(0,1fr)]">
+         <div className="hidden lg:block" />
 
         <div className="min-w-0 flex-1">
           <section className="flex min-h-screen items-center py-24">
@@ -129,12 +128,15 @@ export default function AboutSection() {
           </section>
 
             <section
-            id="hobby"
-            className="relative flex min-h-screen flex-col justify-center py-32"
+                id="hobby"
+                className="relative flex min-h-screen flex-col justify-center pt-[23rem] pb-32 lg:py-32"
             >
-                
-
-                <ScrollReveal direction="left" className="w-full min-w-0">
+                <ScrollReveal
+                    direction="left"
+                    className="w-full min-w-0"
+                    threshold={0.05}
+                    rootMargin="0px 0px 35% 0px"
+                >
                     <p className="mb-4 text-sm font-semibold tracking-[0.4em] text-cyan-400">
                     HOBBY
                     </p>

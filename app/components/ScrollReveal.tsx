@@ -7,6 +7,8 @@ type ScrollRevealProps = {
   direction?: "left" | "right" | "up";
   delay?: number;
   className?: string;
+  threshold?: number;
+  rootMargin?:string;
 };
 
 export default function ScrollReveal({
@@ -14,6 +16,8 @@ export default function ScrollReveal({
   direction = "up",
   delay = 0,
   className = "",
+  threshold = 0.35,
+  rootMargin = "0px",
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -26,12 +30,13 @@ export default function ScrollReveal({
     }
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      {
-        threshold: 0.35,
-      }
+        ([entry]) => {
+            setIsVisible(entry.isIntersecting);
+        },
+        {
+            threshold,
+            rootMargin,
+        }
     );
 
     observer.observe(target);
