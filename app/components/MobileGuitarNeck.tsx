@@ -1,12 +1,12 @@
 "use client";
 
 const strings = [
-  { name: "E", frequency: 82.41 },
-  { name: "A", frequency: 110.0 },
-  { name: "D", frequency: 146.83 },
-  { name: "G", frequency: 196.0 },
-  { name: "B", frequency: 246.94 },
-  { name: "E", frequency: 329.63 },
+    { name: "E", frequency: 329.63 },
+    { name: "B", frequency: 246.94 },
+    { name: "G", frequency: 196.0 },
+    { name: "D", frequency: 146.83 },
+    { name: "A", frequency: 110.0 },
+    { name: "E", frequency: 82.41 },
 ];
 
 const frets = Array.from({ length: 13 }, (_, index) => index);
