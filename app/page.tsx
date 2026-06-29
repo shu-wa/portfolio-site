@@ -41,7 +41,7 @@ export default function Home() {
           </h1>
 
           <p className="mt-8 max-w-2xl text-base leading-8 text-slate-200 md:text-lg">
-            Next.js、TypeScript、AWS、Javaを用いて制作したPortfolioサイトです。<br/>
+            Next.js、TypeScript、AWS、DBを用いて制作したPortfolioサイトです。<br/>
             自己紹介、制作した作品の紹介を行っています。<br/>
             お問い合わせにつきましては画面最下部にあるContactからお願いします。
           </p>
