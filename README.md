@@ -6,6 +6,8 @@
 
 Next.js、TypeScript、Tailwind CSSを用いてフロントエンドを実装し、AWS Amplify Hostingで公開しています。
 また、お問い合わせフォーム、API、DynamoDB保存、Cognito認証付き管理画面を実装し、単なる静的サイトではなく、バックエンド連携を含むWebアプリケーションとして構築しました。
+作品情報はDynamoDBで管理し、Cognito認証付き管理画面から追加・編集・削除できるようにしました。
+お問い合わせ内容もDynamoDBに保存し、管理画面から確認・削除できます。
 
 ## 公開URL
 

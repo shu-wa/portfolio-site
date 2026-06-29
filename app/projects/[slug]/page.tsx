@@ -55,6 +55,13 @@ export default async function ProjectDetailPage({
     <main className="min-h-screen bg-slate-950 px-5 py-24 text-slate-950 md:px-10">
       <div className="mx-auto max-w-6xl">
         <Link
+          href="/#top"
+          className="mb-8 inline-flex rounded-full border border-white/30 px-5 py-2 text-sm font-bold text-white transition hover:bg-white hover:text-black"
+        >
+          ← top
+        </Link>
+
+        <Link
           href="/#projects"
           className="mb-8 inline-flex rounded-full border border-white/30 px-5 py-2 text-sm font-bold text-white transition hover:bg-white hover:text-black"
         >
