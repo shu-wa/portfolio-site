@@ -488,6 +488,23 @@ export default function ProjectAdmin() {
         </div>
 
         <div className="space-y-4 lg:col-span-2">
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-slate-300">
+              タイトル
+            </span>
+            <input
+              value={selectedProject.title}
+              onChange={(event) =>
+                setSelectedProject({
+                  ...selectedProject,
+                  title: event.target.value,
+                })
+              }
+              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+              placeholder="例：Cat Museum Stealth"
+            />
+          </label>
           <label className="block">
                 <span className="mb-1 block text-sm font-semibold">slug</span>
                     <input
