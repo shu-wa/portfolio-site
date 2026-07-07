@@ -6,7 +6,7 @@ import SplashScreen from "./components/SplashScreen";
 
 export default function Home() {
   return (
-    <main className="bg-slate-950 text-white">
+    <main className="bg-black text-white">
       <SplashScreen />
       <SiteHeader />
 
@@ -63,8 +63,8 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 right-6 z-10 text-xs tracking-[0.4em] text-slate-300 md:right-12">
-          <span className="inline-block animate-bounce">SCROLL</span>
+        <div className="absolute bottom-8 right-6 z-10 text-3xl tracking-[0.4em] text-slate-300 md:right-12">
+          <span className="inline-block animate-bounce">↓</span>
         </div>
       </section>
 
@@ -72,7 +72,7 @@ export default function Home() {
 
       <AboutSection />
 
-      <section id="projects" className="bg-slate-950 px-6 py-24">
+      <section id="projects" className="bg-black px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <p className="mb-3 text-sm font-semibold tracking-[0.4em] text-cyan-400">
             WORKS
@@ -82,7 +82,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="contact" className="bg-slate-950 px-6 py-24">
+      <section id="contact" className="bg-black px-6 py-24">
         <div className="mx-auto max-w-4xl">
           <p className="mb-3 text-sm font-semibold tracking-[0.4em] text-cyan-400">
             CONTACT

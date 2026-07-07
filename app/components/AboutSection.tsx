@@ -6,7 +6,7 @@ import MobileGuitarFloating from "./MobileGuitarFloating";
 
 export default function AboutSection() {
   return (
-    <section id="about" className="relative bg-slate-950 text-white">
+    <section id="about" className="relative bg-black text-white">
       <DesktopGuitarFloating />
       <MobileGuitarFloating />
       
