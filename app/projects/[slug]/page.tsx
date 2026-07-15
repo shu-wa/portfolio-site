@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
@@ -50,6 +51,9 @@ export default async function ProjectDetailPage({
   if (!project) {
     notFound();
   }
+
+  const screenshotUrls = project.screenshotUrls?.filter(Boolean) ?? [];
+  const hasProjectLinks = Boolean(project.githubUrl || project.demoUrl);
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-24 text-slate-950 md:px-10">
@@ -121,6 +125,49 @@ export default async function ProjectDetailPage({
               </div>
             </section>
 
+            {hasProjectLinks && (
+              <section className="mb-10 flex flex-wrap gap-3">
+                {project.githubUrl && (
+                  <ProjectLink href={project.githubUrl} label="GitHub" />
+                )}
+
+                {project.demoUrl && (
+                  <ProjectLink href={project.demoUrl} label="Demo" />
+                )}
+              </section>
+            )}
+
+            {(project.demoVideoUrl || screenshotUrls.length > 0) && (
+              <section className="mb-10 rounded-3xl border-4 border-slate-200 bg-white/80 p-6 shadow-inner md:p-8">
+                <p className="mb-4 text-xs font-black tracking-[0.35em] text-cyan-600">
+                  MEDIA
+                </p>
+
+                <h2 className="mb-6 text-3xl font-black text-slate-950">
+                  スクリーンショット・デモ映像
+                </h2>
+
+                {project.demoVideoUrl && (
+                  <div className="mb-8">
+                    <MediaEmbed url={project.demoVideoUrl} />
+                  </div>
+                )}
+
+                {screenshotUrls.length > 0 && (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {screenshotUrls.map((url, index) => (
+                      <img
+                        key={`${url}-${index}`}
+                        src={url}
+                        alt={`${project.title} screenshot ${index + 1}`}
+                        className="aspect-video w-full rounded-2xl border border-slate-200 bg-slate-100 object-cover shadow"
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
             <div className="grid gap-6 md:grid-cols-2">
               <MemoCard
                 color="bg-cyan-200"
@@ -185,6 +232,63 @@ export default async function ProjectDetailPage({
       </div>
     </main>
   );
+}
+
+function ProjectLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white shadow transition hover:bg-cyan-500"
+    >
+      {label} を開く →
+    </a>
+  );
+}
+
+function MediaEmbed({ url }: { url: string }) {
+  const embedUrl = getEmbedUrl(url);
+
+  if (embedUrl) {
+    return (
+      <iframe
+        src={embedUrl}
+        title="Project demo video"
+        className="aspect-video w-full rounded-2xl border border-slate-200 bg-slate-950 shadow"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+      />
+    );
+  }
+
+  return (
+    <video
+      src={url}
+      controls
+      className="aspect-video w-full rounded-2xl border border-slate-200 bg-slate-950 shadow"
+    />
+  );
+}
+
+function getEmbedUrl(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+
+    if (parsedUrl.hostname.includes("youtube.com")) {
+      const videoId = parsedUrl.searchParams.get("v");
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+    }
+
+    if (parsedUrl.hostname.includes("youtu.be")) {
+      const videoId = parsedUrl.pathname.replace("/", "");
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+    }
+  } catch {
+    return "";
+  }
+
+  return "";
 }
 
 function MemoCard({

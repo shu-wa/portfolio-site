@@ -12,6 +12,10 @@ const emptyProject: Project = {
   description: "",
   overview: "",
   tech: [],
+  screenshotUrls: [],
+  demoVideoUrl: "",
+  demoUrl: "",
+  githubUrl: "",
   features: [],
   designDecisions: [],
   problems: [],
@@ -77,6 +81,7 @@ export default function ProjectAdmin() {
     const [draggingSlug, setDraggingSlug] = useState("");
 
   const [techText, setTechText] = useState("");
+  const [screenshotUrlsText, setScreenshotUrlsText] = useState("");
   const [featuresText, setFeaturesText] = useState("");
   const [problemsText, setProblemsText] = useState("");
   const [learningsText, setLearningsText] = useState("");
@@ -112,6 +117,10 @@ export default function ProjectAdmin() {
         const normalizedProject: Project = {
             ...project,
             tech: project.tech ?? [],
+            screenshotUrls: project.screenshotUrls ?? [],
+            demoVideoUrl: project.demoVideoUrl ?? "",
+            demoUrl: project.demoUrl ?? "",
+            githubUrl: project.githubUrl ?? "",
             features: project.features ?? [],
             designDecisions: project.designDecisions ?? [],
             problems: project.problems ?? [],
@@ -122,6 +131,7 @@ export default function ProjectAdmin() {
         setSelectedProject(normalizedProject);
         setOriginalSlug(project.slug);
         setTechText(arrayToText(normalizedProject.tech));
+        setScreenshotUrlsText(arrayToText(normalizedProject.screenshotUrls ?? []));
         setFeaturesText(arrayToText(normalizedProject.features));
         setProblemsText(arrayToText(normalizedProject.problems));
         setLearningsText(arrayToText(normalizedProject.learnings));
@@ -136,6 +146,7 @@ export default function ProjectAdmin() {
         });
         setOriginalSlug("");
         setTechText("");
+        setScreenshotUrlsText("");
         setFeaturesText("");
         setProblemsText("");
         setLearningsText("");
@@ -201,6 +212,10 @@ export default function ProjectAdmin() {
       const projectToSave: Project = {
             ...selectedProject,
             tech: textToArray(techText),
+            screenshotUrls: textToArray(screenshotUrlsText),
+            demoVideoUrl: selectedProject.demoVideoUrl?.trim() ?? "",
+            demoUrl: selectedProject.demoUrl?.trim() ?? "",
+            githubUrl: selectedProject.githubUrl?.trim() ?? "",
             features: textToArray(featuresText),
             problems: textToArray(problemsText),
             learnings: textToArray(learningsText),
@@ -575,6 +590,78 @@ export default function ProjectAdmin() {
               className="min-h-24 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white"
             />
           </label>
+
+          <section className="rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <h3 className="text-lg font-bold">作品リンク・メディア</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-400">
+              入力がない項目は、詳細ページに表示されません。
+            </p>
+
+            <div className="mt-4 space-y-4">
+              <label className="block">
+                <span className="mb-1 block text-sm font-semibold">
+                  スクリーンショットURL：1行に1つ
+                </span>
+                <textarea
+                  value={screenshotUrlsText}
+                  onChange={(event) => setScreenshotUrlsText(event.target.value)}
+                  className="min-h-28 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white"
+                  placeholder="/screenshots/catmuseum-01.png"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-semibold">
+                  デモ映像URL
+                </span>
+                <input
+                  value={selectedProject.demoVideoUrl ?? ""}
+                  onChange={(event) =>
+                    setSelectedProject({
+                      ...selectedProject,
+                      demoVideoUrl: event.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white"
+                  placeholder="/videos/catmuseum-demo.mp4 または YouTube URL"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-semibold">
+                  デモURL
+                </span>
+                <input
+                  value={selectedProject.demoUrl ?? ""}
+                  onChange={(event) =>
+                    setSelectedProject({
+                      ...selectedProject,
+                      demoUrl: event.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white"
+                  placeholder="https://example.com"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-semibold">
+                  GitHub URL
+                </span>
+                <input
+                  value={selectedProject.githubUrl ?? ""}
+                  onChange={(event) =>
+                    setSelectedProject({
+                      ...selectedProject,
+                      githubUrl: event.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white"
+                  placeholder="https://github.com/..."
+                />
+              </label>
+            </div>
+          </section>
 
           <label className="block">
             <span className="mb-1 block text-sm font-semibold">

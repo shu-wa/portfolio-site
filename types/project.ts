@@ -11,6 +11,10 @@ export type Project = {
   description: string;
   overview: string;
   tech: string[];
+  screenshotUrls?: string[];
+  demoVideoUrl?: string;
+  demoUrl?: string;
+  githubUrl?: string;
   features: string[];
   designDecisions: DesignDecision[];
   problems: string[];

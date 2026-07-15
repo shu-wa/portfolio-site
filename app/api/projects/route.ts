@@ -83,6 +83,10 @@ export async function POST(request: Request) {
         Item: {
           ...project,
           tech: project.tech ?? [],
+          screenshotUrls: project.screenshotUrls ?? [],
+          demoVideoUrl: project.demoVideoUrl ?? "",
+          demoUrl: project.demoUrl ?? "",
+          githubUrl: project.githubUrl ?? "",
           features: project.features ?? [],
           designDecisions: project.designDecisions ?? [],
           problems: project.problems ?? [],
