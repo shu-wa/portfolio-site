@@ -154,14 +154,18 @@ export default async function ProjectDetailPage({
                 )}
 
                 {screenshotUrls.length > 0 && (
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid items-start gap-4 md:grid-cols-2">
                     {screenshotUrls.map((url, index) => (
-                      <img
+                      <div
                         key={`${url}-${index}`}
-                        src={url}
-                        alt={`${project.title} screenshot ${index + 1}`}
-                        className="aspect-video w-full rounded-2xl border border-slate-200 bg-slate-100 object-cover shadow"
-                      />
+                        className="flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 p-2 shadow"
+                      >
+                        <img
+                          src={url}
+                          alt={`${project.title} screenshot ${index + 1}`}
+                          className="h-auto max-h-[42rem] w-auto max-w-full rounded-xl object-contain"
+                        />
+                      </div>
                     ))}
                   </div>
                 )}
