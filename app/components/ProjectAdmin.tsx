@@ -78,6 +78,8 @@ export default function ProjectAdmin() {
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [jsonText, setJsonText] = useState("");
     const [draggingSlug, setDraggingSlug] = useState("");
 
   const [techText, setTechText] = useState("");
@@ -273,6 +275,131 @@ export default function ProjectAdmin() {
     }
   }
 
+  function exportProjectsAsJson() {
+    setJsonText(JSON.stringify(normalizeProjectOrder(projects), null, 2));
+    setMessage("作品データをJSON欄に出力しました。");
+  }
+
+  function normalizeImportedProject(value: unknown, index: number): Project | null {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      return null;
+    }
+
+    const project = value as Partial<Project>;
+
+    if (
+      typeof project.slug !== "string" ||
+      typeof project.title !== "string" ||
+      typeof project.description !== "string" ||
+      !project.slug.trim() ||
+      !project.title.trim() ||
+      !project.description.trim()
+    ) {
+      return null;
+    }
+
+    const stringArray = (items: unknown) =>
+      Array.isArray(items)
+        ? items.filter((item): item is string => typeof item === "string")
+        : [];
+
+    const decisions = Array.isArray(project.designDecisions)
+      ? project.designDecisions
+          .filter((decision) => Boolean(decision) && typeof decision === "object")
+          .map((decision) => ({
+            title: typeof decision.title === "string" ? decision.title : "",
+            what: typeof decision.what === "string" ? decision.what : "",
+            why: typeof decision.why === "string" ? decision.why : "",
+            effect: typeof decision.effect === "string" ? decision.effect : "",
+          }))
+      : [];
+
+    return {
+      slug: project.slug.trim(),
+      title: project.title.trim(),
+      description: project.description.trim(),
+      overview: typeof project.overview === "string" ? project.overview : "",
+      tech: stringArray(project.tech),
+      screenshotUrls: stringArray(project.screenshotUrls),
+      demoVideoUrl: typeof project.demoVideoUrl === "string" ? project.demoVideoUrl.trim() : "",
+      demoUrl: typeof project.demoUrl === "string" ? project.demoUrl.trim() : "",
+      githubUrl: typeof project.githubUrl === "string" ? project.githubUrl.trim() : "",
+      features: stringArray(project.features),
+      designDecisions: decisions,
+      problems: stringArray(project.problems),
+      learnings: stringArray(project.learnings),
+      future: stringArray(project.future),
+      order: typeof project.order === "number" ? project.order : index + 1,
+    };
+  }
+
+  async function importProjectsFromJson() {
+    try {
+      setIsImporting(true);
+      setMessage("");
+
+      const parsed = JSON.parse(jsonText) as unknown;
+      const sourceProjects = Array.isArray(parsed)
+        ? parsed
+        : parsed && typeof parsed === "object" && Array.isArray((parsed as { projects?: unknown }).projects)
+          ? (parsed as { projects: unknown[] }).projects
+          : [parsed];
+      const importedProjects = sourceProjects
+        .map((project, index) => normalizeImportedProject(project, index))
+        .filter((project): project is Project => project !== null);
+
+      if (importedProjects.length === 0 || importedProjects.length !== sourceProjects.length) {
+        setMessage("JSONを確認してください。各作品には slug、title、description が必要です。");
+        return;
+      }
+
+      const duplicatedSlug = importedProjects.find(
+        (project, index) => importedProjects.findIndex((item) => item.slug === project.slug) !== index
+      );
+
+      if (duplicatedSlug) {
+        setMessage(`slug「${duplicatedSlug.slug}」がJSON内で重複しています。`);
+        return;
+      }
+
+      const idToken = await getIdToken();
+
+      if (!idToken) {
+        setMessage("ログイン情報を確認してください。");
+        return;
+      }
+
+      const existingSlugs = new Set(projects.map((project) => project.slug));
+      const responses = await Promise.all(
+        importedProjects.map((project) => {
+          const exists = existingSlugs.has(project.slug);
+
+          return fetch(exists ? `/api/projects/${project.slug}` : "/api/projects", {
+            method: exists ? "PUT" : "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${idToken}`,
+            },
+            body: JSON.stringify(project),
+          });
+        })
+      );
+
+      if (responses.some((response) => !response.ok)) {
+        setMessage("一部の作品を保存できませんでした。JSONを確認してもう一度試してください。");
+        return;
+      }
+
+      await fetchProjects();
+      setMessage(`${importedProjects.length}件の作品を登録・更新しました。`);
+    } catch (error) {
+      console.error("JSON import error", error);
+      setMessage("JSONの形式を確認してください。");
+    } finally {
+      setIsImporting(false);
+    }
+  }
+
   function handleProjectDragStart(slug: string) {
         setDraggingSlug(slug);
         }
@@ -434,6 +561,43 @@ export default function ProjectAdmin() {
           新規作成
         </button>
       </div>
+
+      <section className="mb-6 rounded-xl border border-slate-800 bg-slate-950 p-5">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 className="font-bold text-cyan-300">JSONでまとめて登録・更新</h3>
+            <p className="mt-1 text-sm text-slate-400">
+              作品1件、作品配列、または {`{ "projects": [...] }`} の形式を貼り付けられます。同じslugは更新します。
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={exportProjectsAsJson}
+            className="shrink-0 rounded-lg border border-cyan-400 px-3 py-2 text-sm font-bold text-cyan-300 transition hover:bg-cyan-950"
+          >
+            現在の作品をJSONに出力
+          </button>
+        </div>
+
+        <textarea
+          value={jsonText}
+          onChange={(event) => setJsonText(event.target.value)}
+          className="mt-4 min-h-64 w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 font-mono text-sm text-white outline-none transition focus:border-cyan-400"
+          placeholder={'[\n  {\n    "slug": "cat-museum-stealth",\n    "title": "Cat Museum Stealth",\n    "description": "作品の短い説明"\n  }\n]'}
+          spellCheck={false}
+        />
+
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={importProjectsFromJson}
+            disabled={isImporting || !jsonText.trim()}
+            className="rounded-lg bg-cyan-400 px-4 py-2 font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isImporting ? "登録・更新中..." : "JSONを登録・更新"}
+          </button>
+        </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-3">
