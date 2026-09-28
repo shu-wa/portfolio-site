@@ -293,7 +293,7 @@ export default function ProjectList() {
 
       <div
         ref={boardRef}
-        className="relative overflow-hidden rounded-[2rem] border-8 border-slate-300 bg-white shadow-2xl"
+        className="relative isolate overflow-hidden rounded-[2rem] border-8 border-slate-300 bg-white shadow-2xl"
         style={{
           height: boardHeight,
           backgroundImage:
