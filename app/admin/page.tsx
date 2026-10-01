@@ -6,7 +6,7 @@ import { Authenticator } from "@aws-amplify/ui-react";
 
 export default function AdminPage() {
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-16 text-white">
+    <main id="main-content" className="min-h-screen bg-slate-950 px-6 py-16 text-white">
       <div className="mx-auto max-w-4xl">
         <Authenticator hideSignUp>
           {({ signOut, user }) => (

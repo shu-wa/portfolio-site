@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:security": "node scripts/check-security.mjs",
+    "test:browser": "node scripts/check-browser.mjs"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.15.4",
@@ -14,17 +16,20 @@
     "@aws-sdk/lib-dynamodb": "^3.1071.0",
     "aws-amplify": "^6.18.0",
     "aws-jwt-verify": "^5.2.1",
-    "next": "16.2.9",
+    "lucide-react": "^1.49.0",
+    "next": "^16.3.8",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.9",
+    "eslint-config-next": "^16.3.8",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

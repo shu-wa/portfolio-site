@@ -79,7 +79,7 @@ export default function VerticalGuitarNeck() {
       <div className="flex h-full flex-col rounded-[2rem] border border-amber-900/70 bg-gradient-to-b from-amber-950 via-amber-900 to-stone-950 p-4 shadow-2xl">
         <div className="mb-4 text-center">
           <p className="text-xs font-black tracking-[0.35em] text-amber-200">
-            Let's play GUITAR
+            Let&apos;s play GUITAR
           </p>
           <p className="mt-2 text-[10px] text-amber-100/60">
             distorted sound / 12 frets

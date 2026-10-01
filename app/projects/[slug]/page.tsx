@@ -1,338 +1,64 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
-import { projects as fallbackProjects } from "../../../data/projects";
-import type { Project } from "../../../types/project";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import type { Metadata } from "next";
+import SiteHeader from "../../components/SiteHeader";
+import { getStoredProject } from "../../../lib/projects";
+import { isTsudowa, toPublicProject } from "../../../lib/project-public";
+import { validSlug } from "../../../lib/project-input";
 
-type ProjectDetailPageProps = {
-  params: Promise<{
-    slug: string;
-  }>;
-};
-
-const TABLE_NAME = process.env.DYNAMODB_PROJECTS_TABLE_NAME ?? "PortfolioProjects";
-
-const client = new DynamoDBClient({
-  region: process.env.AWS_REGION ?? "ap-southeast-2",
-});
-
-const documentClient = DynamoDBDocumentClient.from(client);
-
-async function getProject(slug: string): Promise<Project | null> {
-  const fallbackProject =
-    fallbackProjects.find((project) => project.slug === slug) ?? null;
-
-  try {
-    const result = await documentClient.send(
-      new GetCommand({
-        TableName: TABLE_NAME,
-        Key: { slug },
-      })
-    );
-
-    if (result.Item) {
-      return result.Item as Project;
-    }
-  } catch (error) {
-    console.error("DynamoDBから作品詳細を取得できませんでした", error);
-  }
-
-  return fallbackProject;
-}
-
-export default async function ProjectDetailPage({
-  params,
-}: ProjectDetailPageProps) {
+type Props = { params: Promise<{ slug: string }> };
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const project = await getProject(slug);
-
-  if (!project) {
-    notFound();
-  }
-
-  const screenshotUrls = project.screenshotUrls?.filter(Boolean) ?? [];
-  const hasProjectLinks = Boolean(project.githubUrl || project.demoUrl);
-
-  return (
-    <main className="min-h-screen bg-slate-950 px-5 py-24 text-slate-950 md:px-10">
-      <div className="mx-auto max-w-6xl">
-        <Link
-          href="/#top"
-          className="mb-8 inline-flex rounded-full border border-white/30 px-5 py-2 text-sm font-bold text-white transition hover:bg-white hover:text-black"
-        >
-          ← top
-        </Link>
-
-        <Link
-          href="/#projects"
-          className="mb-8 inline-flex rounded-full border border-white/30 px-5 py-2 text-sm font-bold text-white transition hover:bg-white hover:text-black"
-        >
-          ← Worksに戻る
-        </Link>
-
-        <section className="relative overflow-hidden rounded-[2rem] border-8 border-slate-300 bg-white p-6 shadow-2xl md:p-10">
-          <div
-            className="absolute inset-0 opacity-80"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px)",
-              backgroundSize: "32px 32px",
-            }}
-          />
-
-          <div className="relative z-10">
-            <div className="mb-10 flex flex-col gap-6 border-b-4 border-slate-200 pb-8 md:flex-row md:items-start md:justify-between">
-              <div>
-                <p className="mb-4 text-xs font-black tracking-[0.4em] text-cyan-600">
-                  PROJECT DETAIL
-                </p>
-
-                <h1 className="max-w-4xl text-4xl font-black leading-tight text-slate-950 md:text-6xl">
-                  {project.title}
-                </h1>
-
-                <p className="mt-6 max-w-3xl text-lg font-medium leading-9 text-slate-700">
-                  {project.overview}
-                </p>
-              </div>
-
-              <div className="rotate-2 rounded-sm bg-yellow-200 p-5 shadow-xl md:w-72">
-                <p className="mb-3 border-b border-slate-900/20 pb-2 text-xs font-black tracking-[0.25em] text-slate-700">
-                  SUMMARY
-                </p>
-                <p className="text-sm font-bold leading-7 text-slate-800">
-                  {project.description}
-                </p>
-              </div>
-            </div>
-
-            <section className="mb-10">
-              <h2 className="mb-5 text-2xl font-black text-slate-950">
-                使用技術
-              </h2>
-
-              <div className="flex flex-wrap gap-3">
-                {project.tech.map((tech) => (
-                  <span
-                    key={tech}
-                    className="rounded-full bg-slate-950 px-4 py-2 text-sm font-bold text-white shadow"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </section>
-
-            {hasProjectLinks && (
-              <section className="mb-10 flex flex-wrap gap-3">
-                {project.githubUrl && (
-                  <ProjectLink href={project.githubUrl} label="GitHub" />
-                )}
-
-                {project.demoUrl && (
-                  <ProjectLink href={project.demoUrl} label="Demo" />
-                )}
-              </section>
-            )}
-
-            {(project.demoVideoUrl || screenshotUrls.length > 0) && (
-              <section className="mb-10 rounded-3xl border-4 border-slate-200 bg-white/80 p-6 shadow-inner md:p-8">
-                <p className="mb-4 text-xs font-black tracking-[0.35em] text-cyan-600">
-                  MEDIA
-                </p>
-
-                <h2 className="mb-6 text-3xl font-black text-slate-950">
-                  スクリーンショット・デモ映像
-                </h2>
-
-                {project.demoVideoUrl && (
-                  <div className="mb-8">
-                    <MediaEmbed url={project.demoVideoUrl} />
-                  </div>
-                )}
-
-                {screenshotUrls.length > 0 && (
-                  <div className="grid items-start gap-4 md:grid-cols-2">
-                    {screenshotUrls.map((url, index) => (
-                      <div
-                        key={`${url}-${index}`}
-                        className="flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 p-2 shadow"
-                      >
-                        <img
-                          src={url}
-                          alt={`${project.title} screenshot ${index + 1}`}
-                          className="h-auto max-h-[42rem] w-auto max-w-full rounded-xl object-contain"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <MemoCard
-                color="bg-cyan-200"
-                title="主な機能"
-                items={project.features}
-              />
-
-              <MemoCard
-                color="bg-pink-200"
-                title="苦労した点・改善した点"
-                items={project.problems}
-              />
-
-              <MemoCard
-                color="bg-lime-200"
-                title="開発を通じて学んだこと"
-                items={project.learnings}
-              />
-
-              <MemoCard
-                color="bg-orange-200"
-                title="今後の改善"
-                items={project.future}
-              />
-            </div>
-
-            <section className="mt-10 rounded-3xl border-4 border-slate-200 bg-white/80 p-6 shadow-inner md:p-8">
-              <p className="mb-6 text-xs font-black tracking-[0.35em] text-cyan-600">
-                DESIGN DECISIONS
-              </p>
-
-              <h2 className="mb-8 text-3xl font-black text-slate-950">
-                設計の工夫と意思決定
-              </h2>
-
-              <div className="space-y-6">
-                {project.designDecisions.map((decision, index) => (
-                  <div
-                    key={`${decision.title}-${index}`}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm"
-                  >
-                    <div className="mb-4 flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-sm font-black text-white">
-                        {index + 1}
-                      </span>
-                      <h3 className="text-xl font-black text-slate-950">
-                        {decision.title}
-                      </h3>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <DecisionBox label="何をしたか" text={decision.what} />
-                      <DecisionBox label="なぜそうしたか" text={decision.why} />
-                      <DecisionBox label="効果" text={decision.effect} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
+  if (!validSlug(slug)) return { title: "Not Found" };
+  const stored = await getStoredProject(slug);
+  if (!stored) return { title: "Not Found" };
+  const project = toPublicProject(stored);
+  return { title: project.title, description: project.description };
 }
 
-function ProjectLink({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white shadow transition hover:bg-cyan-500"
-    >
-      {label} を開く →
-    </a>
-  );
-}
-
-function MediaEmbed({ url }: { url: string }) {
-  const embedUrl = getEmbedUrl(url);
-
-  if (embedUrl) {
-    return (
-      <iframe
-        src={embedUrl}
-        title="Project demo video"
-        className="aspect-video w-full rounded-2xl border border-slate-200 bg-slate-950 shadow"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-      />
-    );
-  }
-
-  return (
-    <video
-      src={url}
-      controls
-      className="aspect-video w-full rounded-2xl border border-slate-200 bg-slate-950 shadow"
-    />
-  );
-}
-
-function getEmbedUrl(url: string) {
-  try {
-    const parsedUrl = new URL(url);
-
-    if (parsedUrl.hostname.includes("youtube.com")) {
-      const videoId = parsedUrl.searchParams.get("v");
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
-    }
-
-    if (parsedUrl.hostname.includes("youtu.be")) {
-      const videoId = parsedUrl.pathname.replace("/", "");
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
-    }
-  } catch {
-    return "";
-  }
-
-  return "";
-}
-
-function MemoCard({
-  color,
-  title,
-  items,
-}: {
-  color: string;
-  title: string;
-  items: string[];
-}) {
-  return (
-    <section className={`relative rotate-[-1deg] rounded-sm ${color} p-6 shadow-xl`}>
-      <div className="absolute left-1/2 top-[-10px] h-6 w-20 -translate-x-1/2 rotate-2 bg-white/50 shadow-sm" />
-
-      <h2 className="mb-5 border-b border-slate-900/20 pb-3 text-2xl font-black text-slate-950">
-        {title}
-      </h2>
-
-      <ul className="space-y-3">
-        {items.map((item) => (
-          <li
-            key={item}
-            className="text-sm font-bold leading-7 text-slate-800"
-          >
-            ・{item}
-          </li>
-        ))}
-      </ul>
+export default async function ProjectDetail({ params }: Props) {
+  const { slug } = await params;
+  if (!validSlug(slug)) notFound();
+  const stored = await getStoredProject(slug);
+  if (!stored) notFound();
+  const project = toPublicProject(stored);
+  const product = isTsudowa(project);
+  const sections = [
+    { label: "WHAT IT DOES", title: "できること", items: project.features },
+    { label: "TRIAL & ERROR", title: "試して、直したこと", items: project.problems },
+    { label: "TAKEAWAYS", title: "この制作から", items: project.learnings },
+    { label: "WHAT'S NEXT", title: "次に向けて", items: project.future },
+  ];
+  const embed = youtubeEmbed(project.demoVideoUrl ?? "");
+  return <><SiteHeader /><main id="main-content" className="detail-main">
+    <section className="section-pad detail-intro"><Link href="/#projects" className="back-link"><ArrowLeft size={17} />制作物一覧へ</Link>
+      <p className="mono">SELECTED EXPLORATION / {product ? "MOBILE APP" : "FIELD NOTES"}</p>
+      <h1 className="detail-title">{project.title}</h1><p className="detail-description">{project.description}</p>
+      {product && <span className="product-note">一般公開に向けて準備中</span>}
+      <div className="work-tech">{project.tech.map((tech) => <span key={tech}>{tech}</span>)}</div>
+      <div className="detail-links">{[{ url: project.githubUrl, label: "GitHub" }, { url: project.demoUrl, label: "デモを開く" }].filter((link) => link.url).map((link) => <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer" className="action-link">{link.label}<ArrowUpRight size={18} /></a>)}</div>
     </section>
-  );
+    <div className="section-pad" style={{ paddingTop: 0 }}>
+      <section className="detail-overview"><h2>はじまりと、形。</h2><p>{project.overview}</p></section>
+      {(project.screenshotUrls?.length || project.demoVideoUrl) ? <section className="detail-section"><span className="mono">A CLOSER LOOK</span><h2>画面と体験</h2>
+        {project.demoVideoUrl && (embed ? <iframe className="detail-video" src={embed} title={`${project.title} デモ映像`} allow="fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /> : <video className="detail-video" src={project.demoVideoUrl} controls preload="metadata" />)}
+        <div className={`detail-media ${product ? "mobile-media" : ""}`}>{project.screenshotUrls?.map((url, index) => <a href={url} target="_blank" rel="noopener noreferrer" key={`${url}-${index}`} aria-label={`${project.title} 画面${index + 1}を原寸で開く`}><img src={url} alt={`${project.title}の画面 ${index + 1}`} width={product ? 1179 : undefined} height={product ? 2556 : undefined} loading="lazy" /></a>)}</div>
+        {product && <p className="media-note">開発中の画面です。一般公開版では表示が変わる場合があります。</p>}
+      </section> : null}
+      {sections.filter((section) => section.items.length).map((section) => <section className="detail-section" key={section.label}><span className="mono">{section.label}</span><h2>{section.title}</h2><ul>{section.items.map((item, index) => <li key={index}>{item}</li>)}</ul></section>)}
+      {project.designDecisions.length > 0 && <section className="detail-section"><span className="mono">THOUGHT BEHIND THE WORK</span><h2>設計の工夫</h2>{project.designDecisions.map((decision, index) => <article className="decision" key={index}><h3>{decision.title}</h3><dl>{[{ title: "何をしたか", text: decision.what }, { title: "なぜそうしたか", text: decision.why }, { title: "どう変わったか", text: decision.effect }].map((item) => <div key={item.title}><dt>{item.title}</dt><dd>{item.text}</dd></div>)}</dl></article>)}</section>}
+    </div>
+  </main><footer className="site-footer"><Link className="brand" href="/">ST<span className="brand-plus">+</span></Link><Link href="/#projects" className="mono">BACK TO WORKS <ArrowUpRight size={16} /></Link></footer></>;
 }
 
-function DecisionBox({ label, text }: { label: string; text: string }) {
-  return (
-    <div className="rounded-xl bg-white p-4 shadow-sm">
-      <p className="mb-2 text-xs font-black tracking-[0.2em] text-cyan-600">
-        {label}
-      </p>
-      <p className="text-sm font-bold leading-7 text-slate-700">{text}</p>
-    </div>
-  );
+function youtubeEmbed(value: string) {
+  try {
+    const url = new URL(value);
+    const hosts = ["www.youtube.com", "youtube.com", "m.youtube.com", "youtu.be"];
+    if (!hosts.includes(url.hostname)) return "";
+    const id = url.hostname === "youtu.be" ? url.pathname.slice(1) : url.searchParams.get("v");
+    return id && /^[\w-]{11}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : "";
+  } catch { return ""; }
 }

@@ -42,7 +42,7 @@ export default function ScrollReveal({
     observer.observe(target);
 
     return () => observer.disconnect();
-  }, []);
+  }, [rootMargin, threshold]);
 
     const hiddenClass = {
         left: "-translate-x-10 opacity-0 md:-translate-x-32",

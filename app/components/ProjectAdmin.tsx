@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchAuthSession } from "aws-amplify/auth";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { DesignDecision,Project } from "../../types/project";
 import type { DragEvent } from "react";
 
@@ -69,6 +69,11 @@ const emptyDecision: DesignDecision = {
   effect: "",
 };
 
+async function getIdToken() {
+  const session = await fetchAuthSession();
+  return session.tokens?.idToken?.toString();
+}
+
 export default function ProjectAdmin() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project>({
@@ -89,18 +94,12 @@ export default function ProjectAdmin() {
   const [learningsText, setLearningsText] = useState("");
   const [futureText, setFutureText] = useState("");
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  async function getIdToken() {
-    const session = await fetchAuthSession();
-    return session.tokens?.idToken?.toString();
-  }
-
-  async function fetchProjects() {
+  const fetchProjects = useCallback(async () => {
     try {
-        const response = await fetch("/api/projects");
+        const idToken = await getIdToken();
+        const response = await fetch("/api/projects?view=admin", {
+          headers: { Authorization: `Bearer ${idToken ?? ""}` },
+        });
         const data = await response.json();
 
         if (!response.ok) {
@@ -113,7 +112,13 @@ export default function ProjectAdmin() {
         console.error("作品一覧取得エラー", error);
         setMessage("作品一覧の取得に失敗しました。");
     }
-    }
+    }, []);
+
+  useEffect(() => {
+    // The initial fetch updates state only after authentication and the HTTP request resolve.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchProjects();
+  }, [fetchProjects]);
 
   function selectProject(project: Project) {
         const normalizedProject: Project = {
