@@ -17,7 +17,7 @@ export default async function Home() {
         <Image className="hero-image" src="/curiosity-workbench.webp" alt="ゲームコントローラー、回路、ギターピックなど、好奇心を表す実験道具" fill preload sizes="100vw" />
         <div className="hero-content"><div className="hero-intro"><span className="mono">SHUWA TAMAKI</span><span className="mono">CURIOUS MIND, OPEN ENDED.</span></div>
           <h1><span>とりあえず、</span><span>なんでも</span><span>やってみる<span className="hero-exclaim">!!</span></span></h1>
-          <div className="hero-bottom"><p>気になる。その気持ちが、はじまり。<br />AIと一緒に、まだ知らない世界をつくっていく。</p><a className="round-link" href="#projects" aria-label="制作物を見る"><ArrowDownRight size={29} /></a></div>
+          <div className="hero-bottom"><p>気になる。その気持ちが、はじまり。<br />AIと一緒に、好奇心を形にしていく。</p><a className="round-link" href="#projects" aria-label="制作物を見る"><ArrowDownRight size={29} /></a></div>
         </div>
         <div className="hero-foot"><span className="mono">DESIGN × CODE × CURIOSITY</span><CuriosityPrompt /><a href="#projects" className="scroll-label mono">EXPLORE<MoveDown size={17} /></a></div>
       </section>
