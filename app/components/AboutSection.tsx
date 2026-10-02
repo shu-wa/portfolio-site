@@ -1,10 +1,9 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
-import { GuitarLab } from "./CuriosityLab";
 
 export default function AboutSection() {
   return <section id="about" className="about-section section-pad">
-    <div className="section-heading"><span className="mono">03 / THE PERSON</span><span className="mono">BEYOND THE SCREEN</span></div>
+    <div className="section-heading"><span className="mono">03 / プロフィール</span><span className="mono">ABOUT ME</span></div>
     <div className="about-grid">
       <div className="portrait" data-reveal><Image src="/profile.jpg" alt="玉木秀杷" width={1108} height={1477} sizes="(max-width: 760px) 100vw, 42vw" /><span className="portrait-caption mono">SHUWA TAMAKI / JAPAN</span></div>
       <div className="about-copy" data-reveal>
@@ -15,6 +14,5 @@ export default function AboutSection() {
         <div className="history"><div><span className="mono">2021</span><span>多摩科学技術高校 入学</span></div><div><span className="mono">2024</span><span>芝浦工業大学 入学</span></div><div><span className="mono">NOW</span><span>好奇心を、制作物に。<ArrowUpRight size={17} /></span></div></div>
       </div>
     </div>
-    <GuitarLab />
   </section>;
 }

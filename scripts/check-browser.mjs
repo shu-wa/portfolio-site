@@ -42,8 +42,19 @@ try {
     assert(layout.document <= layout.viewport + 1, `horizontal overflow at ${width}: ${JSON.stringify(layout)}`);
     assert.deepEqual(layout.overflow, [], `text/control overflow at ${width}`);
     assert(layout.heroEnd < height, `next section must be visible at ${width}`);
+    assert((await page.locator(".hero-bottom").textContent()).includes("玉木秀杷のポートフォリオです"));
+    assert.equal(await page.getByRole("heading", { name: "制作物一覧", exact: true }).count(), 1);
+    assert.equal(await page.getByRole("heading", { name: "お問い合わせ", exact: true }).count(), 1);
+    assert.equal(await page.getByRole("link", { name: "管理者ログイン", exact: true }).getAttribute("href"), "/admin");
+    assert.equal(await page.locator(".curiosity-prompt,.guitar-lab,#playground").count(), 0);
+    assert(!(await page.locator("body").textContent()).includes("A LITTLE PLAYGROUND"));
     const homeAccessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
     assert.deepEqual(homeAccessibility.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) })), [], `home accessibility at ${width}`);
+    await page.getByRole("link", { name: "制作物を見る", exact: true }).click();
+    assert(await page.locator("#projects").evaluate((element) => {
+      const top = element.getBoundingClientRect().top;
+      return top >= -1 && top <= 100;
+    }), "hero link must navigate to works");
     const originalCount = await page.locator(".work-item").count();
     await page.getByRole("button", { name: "ゲーム", exact: true }).click();
     assert.equal(await page.getByRole("button", { name: "ゲーム", exact: true }).getAttribute("aria-pressed"), "true");
@@ -57,9 +68,6 @@ try {
     }), `phone screenshot must not be clipped at ${width}`);
     await page.locator("#projects").scrollIntoViewIfNeeded();
     await page.screenshot({ path: path.join(output, `works-${width}.png`) });
-    const idea = await page.locator(".curiosity-prompt strong").textContent();
-    await page.getByRole("button", { name: "次の好奇心を見る" }).click();
-    assert.notEqual(await page.locator(".curiosity-prompt strong").textContent(), idea);
     if (width <= 760) {
       await page.getByRole("button", { name: "メニューを開く" }).click();
       assert(await page.locator("dialog").evaluate((element) => element.matches(":modal")));
@@ -69,14 +77,14 @@ try {
         return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
       });
       assert(topmost, "menu must render above all work visuals");
+      assert.deepEqual(await page.locator("dialog nav a > span:nth-child(2)").evaluateAll((elements) => elements.map((element) => element.childNodes[0].textContent)), ["制作物一覧", "私の強み", "プロフィール", "お問い合わせ"]);
+      assert(await page.locator("dialog nav a").evaluateAll((elements) => elements.every((element) => element.scrollWidth <= element.clientWidth)), `menu text must fit at ${width}`);
       const menuAccessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
       assert.deepEqual(menuAccessibility.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) })), [], `menu accessibility at ${width}`);
       await page.keyboard.press("Escape");
       assert(!(await page.locator("dialog").isVisible()));
       assert.equal(await page.evaluate(() => document.body.style.overflow), "");
     }
-    await page.getByRole("button", { name: "E2の弦を鳴らす", exact: true }).click();
-    assert(await page.locator(".string.is-playing").isVisible());
     await page.route("**/api/contact", async (route) => {
       const body = route.request().postDataJSON();
       assert.equal(body.name, "Browser Test");
