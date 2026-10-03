@@ -92,9 +92,12 @@ try {
     await note.uncheck();
     assert(!(await note.isChecked()));
     await checkDemo("app");
+    const allWorks = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    assert.equal(await page.getByRole("button", { name: "制作物をシャッフル", exact: true }).count(), 0);
     await page.getByRole("button", { name: "次の制作モード", exact: true }).click();
     await page.locator(".physics-canvas").waitFor();
-    assert.equal(await page.getByRole("button", { name: "ゲーム", exact: true }).getAttribute("aria-pressed"), "true");
+    assert.equal(await page.getByRole("button", { name: "すべて", exact: true }).getAttribute("aria-pressed"), "true", "hero mode must not select a work category");
+    assert.deepEqual(await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href"))), allWorks, "hero game mode must not filter or reorder works");
     assert(await page.locator(".physics-canvas").evaluate((canvas) => {
       const pixels = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
       const colors = new Set();
@@ -124,6 +127,8 @@ try {
     await page.getByRole("button", { name: "パーツを元に戻す", exact: true }).click();
     await checkDemo("game");
     await page.getByRole("button", { name: "次の制作モード", exact: true }).click();
+    assert.equal(await page.getByRole("button", { name: "すべて", exact: true }).getAttribute("aria-pressed"), "true");
+    assert.deepEqual(await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href"))), allWorks, "hero system mode must not filter or reorder works");
     await page.getByLabel("アイデアのタイトル", { exact: true }).fill("  Browser Sketch  ");
     await page.getByRole("button", { name: "JSONをつくる", exact: true }).click();
     await page.getByRole("status").filter({ hasText: "JSONを作成しました" }).waitFor();
@@ -153,16 +158,27 @@ try {
       return top >= -1 && top <= 100;
     }), "hero link must navigate to works");
     const originalCount = await page.locator(".work-item").count();
-    await page.getByRole("button", { name: "ゲーム", exact: true }).click();
-    assert.equal(await page.getByRole("button", { name: "ゲーム", exact: true }).getAttribute("aria-pressed"), "true");
-    assert((await page.locator(".work-item").count()) < originalCount);
+    const originalOrder = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    for (const category of ["アプリ・Web", "ゲーム", "システム"]) {
+      await page.getByRole("button", { name: category, exact: true }).click();
+      assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true");
+      assert.equal(await page.locator(".hero").getAttribute("data-mode"), "app", "category selection must not change the hero demo");
+      const filteredOrder = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+      assert(filteredOrder.length < originalCount);
+      assert.deepEqual(filteredOrder, originalOrder.filter((href) => filteredOrder.includes(href)), "filtering must preserve registered order");
+      for (const mode of ["ゲームを作る", "仕組みを作る", "アプリを作る"]) {
+        await page.getByRole("button", { name: mode, exact: true }).click();
+        assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true");
+        assert.deepEqual(await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href"))), filteredOrder, "hero modes must preserve selected category and order");
+      }
+      await page.getByRole("link", { name: "制作物一覧へ", exact: true }).click();
+      assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true", "hero works link must preserve the selected category");
+      await page.getByRole("link", { name: "制作物を見る", exact: true }).click();
+      assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true");
+    }
     await page.getByRole("button", { name: "すべて", exact: true }).click();
     assert.equal(await page.locator(".work-item").count(), originalCount);
-    const beforeShuffle = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
-    await page.getByRole("button", { name: "制作物をシャッフル", exact: true }).click();
-    const afterShuffle = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
-    assert.notDeepEqual(afterShuffle, beforeShuffle);
-    assert.deepEqual([...afterShuffle].sort(), [...beforeShuffle].sort());
+    assert.deepEqual(await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href"))), originalOrder, "returning to all works must restore the original order");
     assert(await page.locator(".phone-screen").evaluate((image) => {
       const frame = image.parentElement.getBoundingClientRect();
       const rect = image.getBoundingClientRect();

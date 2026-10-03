@@ -4,7 +4,6 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { AppWindow, ArrowDownRight, ArrowRight, CheckCircle2, Download, FileJson, Gamepad2, MoveDown, RefreshCw, Terminal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useCuriosity } from "./CuriosityContext";
 import IdeaNotes from "./IdeaNotes";
 
 const PhysicsSketch = dynamic(() => import("./PhysicsSketch"), {
@@ -51,15 +50,15 @@ function SystemSketch() {
 }
 
 export default function CuriosityHero() {
-  const { mode, selectMode, selectFilter } = useCuriosity();
+  const [mode, setMode] = useState<(typeof modes)[number]["id"]>("app");
   const index = modes.findIndex((item) => item.id === mode);
   const current = modes[index];
   return <section id="top" className="hero" data-mode={mode}>
     <Image className="hero-image" src="/curiosity-workbench.webp" alt="ゲームコントローラー、回路、ギターピックなど、好奇心を表す実験道具" fill preload sizes="100vw" />
     <div className="hero-content"><div className="hero-intro"><span className="mono">SHUWA TAMAKI</span><span className="mono">PORTFOLIO / APPS, GAMES &amp; WEB</span></div>
       <h1><span>とりあえず、</span><span>なんでも</span><span>やってみる<span className="hero-exclaim">!!</span></span></h1>
-      <div className="hero-bottom"><p>アプリ・ゲーム・Webをつくる。<br />玉木秀杷のポートフォリオです。</p><a className="round-link" href="#projects" aria-label="制作物一覧へ" onClick={() => selectFilter("all")}><ArrowDownRight size={29} /></a></div>
-      <div className="curiosity-controls"><div className="mode-segment" role="group" aria-label="制作モード">{modes.map(({ id, name, label, Icon }) => <button key={id} aria-label={label} aria-pressed={mode === id} onClick={() => selectMode(id)}><Icon size={16} aria-hidden="true" /><span>{name}</span></button>)}</div><button className="icon-button mode-cycle" aria-label="次の制作モード" title={`次は、${modes[(index + 1) % modes.length].label}`} onClick={() => selectMode(modes[(index + 1) % modes.length].id)}><RefreshCw key={mode} size={18} /></button></div>
+      <div className="hero-bottom"><p>アプリ・ゲーム・Webをつくる。<br />玉木秀杷のポートフォリオです。</p><a className="round-link" href="#projects" aria-label="制作物一覧へ"><ArrowDownRight size={29} /></a></div>
+      <div className="curiosity-controls"><div className="mode-segment" role="group" aria-label="制作モード">{modes.map(({ id, name, label, Icon }) => <button key={id} aria-label={label} aria-pressed={mode === id} onClick={() => setMode(id)}><Icon size={16} aria-hidden="true" /><span>{name}</span></button>)}</div><button className="icon-button mode-cycle" aria-label="次の制作モード" title={`次は、${modes[(index + 1) % modes.length].label}`} onClick={() => setMode(modes[(index + 1) % modes.length].id)}><RefreshCw key={mode} size={18} /></button></div>
     </div>
     <div className="curiosity-stage"><div className="curiosity-caption"><span className="mono" aria-live="polite">0{index + 1} / {current.label}</span><span className="mono">INTERACTIVE SKETCH</span></div><div className="curiosity-demo" key={mode}>{mode === "app" ? <IdeaNotes /> : mode === "game" ? <PhysicsSketch /> : <SystemSketch />}</div></div>
     <div className="hero-foot"><span className="mono">好奇心を、動くものに。</span><a href="#projects" className="scroll-label mono">制作物を見る<MoveDown size={17} /></a></div>

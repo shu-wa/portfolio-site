@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, AppWindow, Gamepad2, Grid2X2, Shuffle, Terminal } from "lucide-react";
+import { ArrowUpRight, AppWindow, Gamepad2, Grid2X2, Terminal } from "lucide-react";
 import { useState } from "react";
 import type { Project } from "../../types/project";
 import { isTsudowa } from "../../lib/project-public";
-import { useCuriosity, type CuriosityMode } from "./CuriosityContext";
+
+type ProjectFilter = "all" | "app" | "game" | "system";
 
 export function category(project: Project) {
   const text = `${project.title} ${project.slug} ${project.tech.join(" ")}`;
@@ -14,7 +15,7 @@ export function category(project: Project) {
   if (/ゲーム|Game|Unity|パズル|puzzle|minesweeper/i.test(text)) return "game";
   return "system";
 }
-const filters: { value: CuriosityMode | "all"; label: string; Icon: typeof Grid2X2 }[] = [{ value: "all", label: "すべて", Icon: Grid2X2 }, { value: "app", label: "アプリ・Web", Icon: AppWindow }, { value: "game", label: "ゲーム", Icon: Gamepad2 }, { value: "system", label: "システム", Icon: Terminal }];
+const filters: { value: ProjectFilter; label: string; Icon: typeof Grid2X2 }[] = [{ value: "all", label: "すべて", Icon: Grid2X2 }, { value: "app", label: "アプリ・Web", Icon: AppWindow }, { value: "game", label: "ゲーム", Icon: Gamepad2 }, { value: "system", label: "システム", Icon: Terminal }];
 
 function ProjectVisual({ project }: { project: Project }) {
   const mobile = isTsudowa(project);
@@ -29,19 +30,11 @@ function ProjectVisual({ project }: { project: Project }) {
 }
 
 export default function ProjectList({ projects }: { projects: Project[] }) {
-  const { filter, selectFilter } = useCuriosity();
-  const [order, setOrder] = useState(() => projects.map((project) => project.slug));
-  const [shuffleCount, setShuffleCount] = useState(0);
-  const visible = projects.filter((project) => filter === "all" || category(project) === filter).sort((a, b) => order.indexOf(a.slug) - order.indexOf(b.slug));
-  function shuffle() {
-    const next = visible.map((project) => project.slug);
-    for (let index = next.length - 1; index > 0; index--) { const target = crypto.getRandomValues(new Uint32Array(1))[0] % (index + 1); [next[index], next[target]] = [next[target], next[index]]; }
-    if (next.length > 1 && next.every((slug, index) => slug === visible[index].slug)) next.push(next.shift()!);
-    setOrder([...next, ...order.filter((slug) => !next.includes(slug))]); setShuffleCount(shuffleCount + 1);
-  }
+  const [filter, setFilter] = useState<ProjectFilter>("all");
+  const visible = projects.filter((project) => filter === "all" || category(project) === filter);
   return <>
-    <div className="works-toolbar"><div className="work-filters" aria-label="制作物の分類">{filters.map(({ value, label, Icon }) => <button key={value} aria-pressed={filter === value} onClick={() => selectFilter(value)}><Icon size={15} /><span>{label}</span></button>)}</div><div className="works-toolbar-end"><span className="mono" aria-live="polite">{String(visible.length).padStart(2, "0")} PROJECTS</span><button className="icon-button" aria-label="制作物をシャッフル" title="制作物の並び順を変える" disabled={visible.length < 2} onClick={shuffle}><Shuffle size={17} /></button></div></div>
-    <div className={`works-grid ${shuffleCount ? "is-shuffled" : ""}`}>{visible.map((project) => <article className="work-item" key={`${project.slug}-${shuffleCount}`}>
+    <div className="works-toolbar"><div className="work-filters" aria-label="制作物の分類">{filters.map(({ value, label, Icon }) => <button key={value} aria-pressed={filter === value} onClick={() => setFilter(value)}><Icon size={15} /><span>{label}</span></button>)}</div><span className="mono" aria-live="polite">{String(visible.length).padStart(2, "0")} PROJECTS</span></div>
+    <div className="works-grid">{visible.map((project) => <article className="work-item" key={project.slug}>
       <Link className="work-link" href={`/projects/${encodeURIComponent(project.slug)}`}>
         <ProjectVisual project={project} /><div className="work-meta"><span className="mono">{isTsudowa(project) ? "MOBILE APP / COMING SOON" : category(project) === "game" ? "GAME / EXPERIMENT" : category(project) === "app" ? "WEB APP / DEVELOPMENT" : "SYSTEM / DEVELOPMENT"}</span><ArrowUpRight className="work-arrow" size={23} /></div>
         <h3>{project.title}</h3><p>{project.description}</p><div className="work-tech">{project.tech.slice(0, 4).map((tech) => <span key={tech}>{tech}</span>)}</div>

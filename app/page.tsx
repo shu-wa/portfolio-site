@@ -6,14 +6,13 @@ import ProjectList from "./components/ProjectList";
 import SiteHeader from "./components/SiteHeader";
 import PortfolioMotion from "./components/PortfolioMotion";
 import CuriosityHero from "./components/CuriosityHero";
-import { CuriosityProvider } from "./components/CuriosityContext";
 import { getPublicProjects } from "../lib/projects";
 
 export default async function Home() {
   const projects = await getPublicProjects();
   return <>
     <SiteHeader /><PortfolioMotion />
-    <CuriosityProvider><main id="main-content">
+    <main id="main-content">
       <CuriosityHero />
       <div className="ticker" aria-hidden="true"><div>{[0, 1, 2, 3].map((i) => <span key={i}>TRY SOMETHING NEW <Asterisk /> MAKE SOMETHING REAL <Asterisk /></span>)}</div></div>
       <section id="projects" className="works-section section-pad">
@@ -31,7 +30,7 @@ export default async function Home() {
         <div className="section-heading"><span className="mono">04 / CONTACT</span><span className="mono">NEW CONNECTIONS, NEW POSSIBILITIES.</span></div>
         <div className="contact-title" data-reveal><h2>お問い合わせ<ArrowUpRight aria-hidden="true" /></h2><p>お仕事のお話も、アイデアの相談も。<br />新しいきっかけを、お待ちしています。</p></div><ContactForm />
       </section>
-    </main></CuriosityProvider>
+    </main>
     <footer className="site-footer"><a className="brand" href="#top">ST<span className="brand-plus">+</span></a><span className="mono">© 2026 SHUWA TAMAKI</span><Link href="/admin" prefetch={false} className="mono"><LogIn size={16} />管理者ログイン</Link><a href="#top" className="mono">トップへ <ArrowUpRight size={16} /></a></footer>
   </>;
 }
