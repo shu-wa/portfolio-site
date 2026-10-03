@@ -8,9 +8,21 @@ const base = process.env.TEST_BASE_URL ?? "http://localhost:3100";
 const output = path.resolve(".artifacts/browser");
 await mkdir(output, { recursive: true });
 const results = [];
-const viewports = [[1440, 1000], [1920, 1080], [768, 1024], [390, 844], [320, 740]].filter(([width]) => !process.env.TEST_WIDTH || width === Number(process.env.TEST_WIDTH));
+const viewports = [[1440, 1000], [1920, 1080], [768, 1024], [390, 844], [320, 740], [390, 740], [430, 740], [375, 667]].filter(([width]) => !process.env.TEST_WIDTH || width === Number(process.env.TEST_WIDTH));
 assert(viewports.length > 0, "TEST_WIDTH must match a supported viewport");
 const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL ?? "chrome", headless: true });
+async function checkDemoGeometry(page, mode, width, height) {
+  assert.equal(await page.locator(".hero").getAttribute("data-mode"), mode);
+  assert(await page.locator(".curiosity-demo").evaluate((element) => {
+    const frame = element.getBoundingClientRect();
+    return [...element.querySelectorAll("button,input,h2,.system-flow,.system-output,.sketch-status,.idea-list")].filter((child) => !child.closest(".idea-list") || child.classList.contains("idea-list")).every((child) => {
+      const rect = child.getBoundingClientRect();
+      return rect.left >= frame.left - 1 && rect.right <= frame.right + 1 && rect.top >= frame.top - 1 && rect.bottom <= frame.bottom + 1;
+    });
+  }), `demo controls/status must fit for ${mode} at ${width}x${height}`);
+  assert(await page.evaluate(() => document.querySelector(".curiosity-stage").getBoundingClientRect().bottom < document.querySelector(".hero-foot").getBoundingClientRect().top + 1), `demo must not overlap footer at ${width}x${height}`);
+  if (width > 760) assert(await page.evaluate(() => document.querySelector(".hero-content").getBoundingClientRect().right < document.querySelector(".curiosity-stage").getBoundingClientRect().left), `demo must not overlap headline at ${width}`);
+}
 try {
   for (const [width, height] of viewports) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce" });
@@ -29,7 +41,7 @@ try {
     assert.equal(response.status(), 200);
     assert(response.headers()["content-security-policy"].includes("'nonce-"));
     await page.evaluate(() => document.fonts.ready);
-    await page.screenshot({ path: path.join(output, `hero-${width}.png`) });
+    await page.screenshot({ path: path.join(output, `hero-${width}x${height}.png`) });
     const layout = await page.evaluate(() => ({
       viewport: innerWidth, document: document.documentElement.scrollWidth,
       image: document.querySelector(".hero-image").naturalWidth,
@@ -53,24 +65,30 @@ try {
     const homeAccessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
     assert.deepEqual(homeAccessibility.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) })), [], `home accessibility at ${width}`);
     async function checkDemo(mode) {
-      assert.equal(await page.locator(".hero").getAttribute("data-mode"), mode);
-      assert(await page.locator(".curiosity-demo").evaluate((element) => {
-        const frame = element.getBoundingClientRect();
-        return [...element.querySelectorAll("button,input,h2,.system-flow,.system-output")].every((child) => {
-          const rect = child.getBoundingClientRect();
-          return rect.left >= frame.left - 1 && rect.right <= frame.right + 1 && rect.bottom <= frame.bottom + 1;
-        });
-      }), `demo controls must fit for ${mode} at ${width}`);
-      if (width <= 760) assert(await page.evaluate(() => document.querySelector(".curiosity-stage").getBoundingClientRect().bottom < document.querySelector(".hero-foot").getBoundingClientRect().top), `demo must not overlap footer at ${width}`);
-      else assert(await page.evaluate(() => document.querySelector(".hero-content").getBoundingClientRect().right < document.querySelector(".curiosity-stage").getBoundingClientRect().left), `demo must not overlap headline at ${width}`);
+      await checkDemoGeometry(page, mode, width, height);
       const accessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
       assert.deepEqual(accessibility.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) })), [], `${mode} accessibility at ${width}`);
-      await page.screenshot({ path: path.join(output, `${mode}-${width}.png`) });
+      await page.screenshot({ path: path.join(output, `${mode}-${width}x${height}.png`) });
     }
-    await page.getByRole("button", { name: "参加する", exact: true }).click();
-    assert.equal(await page.getByRole("button", { name: "参加予定を取り消す", exact: true }).getAttribute("aria-pressed"), "true");
-    assert((await page.locator(".sketch-members").textContent()).includes("8人"));
-    await page.getByRole("button", { name: "参加予定を取り消す", exact: true }).click();
+    const noteTitle = "Browser idea";
+    await page.getByLabel("つくりたいこと", { exact: true }).fill(`  ${noteTitle}  `);
+    await page.getByRole("button", { name: "メモを追加", exact: true }).click();
+    const note = page.getByRole("checkbox", { name: noteTitle, exact: true });
+    assert.equal(await page.locator(".idea-list li").first().textContent(), noteTitle, "new notes must appear first");
+    assert(await note.evaluate((element) => {
+      const frame = element.closest(".idea-list").getBoundingClientRect();
+      const rect = element.getBoundingClientRect();
+      return rect.top >= frame.top && rect.bottom <= frame.bottom;
+    }), "added notes must be immediately visible");
+    await note.check();
+    await page.getByRole("button", { name: "未完了のメモを表示", exact: true }).click();
+    assert.equal(await note.count(), 0);
+    await page.getByRole("button", { name: "完了したメモを表示", exact: true }).click();
+    assert(await note.isChecked());
+    await page.reload({ waitUntil: "networkidle" });
+    assert(await note.isChecked(), "notes must survive reload");
+    await note.uncheck();
+    assert(!(await note.isChecked()));
     await checkDemo("app");
     await page.getByRole("button", { name: "次の制作モード", exact: true }).click();
     await page.locator(".physics-canvas").waitFor();
@@ -117,8 +135,14 @@ try {
     await page.getByLabel("アイデアのタイトル", { exact: true }).fill(" ");
     await page.getByRole("button", { name: "JSONをつくる", exact: true }).click();
     await page.getByRole("status").filter({ hasText: "タイトルを入力してください" }).waitFor();
+    await checkDemoGeometry(page, "system", width, height);
     await page.getByRole("button", { name: "次の制作モード", exact: true }).click();
     assert.equal(await page.locator(".hero").getAttribute("data-mode"), "app");
+    assert.equal(await note.count(), 1, "notes must survive mode switching");
+    await page.getByRole("button", { name: `${noteTitle}を削除`, exact: true }).click();
+    assert.equal(await note.count(), 0);
+    await page.reload({ waitUntil: "networkidle" });
+    assert.equal(await note.count(), 0, "deletion must survive reload");
     await page.getByRole("button", { name: "すべて", exact: true }).click();
     await page.locator("#top").scrollIntoViewIfNeeded();
     await page.getByRole("link", { name: "制作物を見る", exact: true }).click();
@@ -203,7 +227,7 @@ try {
     await context.close();
     console.log(`PASS viewport ${width}x${height}`);
   }
-  if (!process.env.TEST_WIDTH) for (const [width, height] of [[1440, 1000], [390, 844]]) {
+  if (!process.env.TEST_WIDTH) for (const [width, height] of [[1440, 1000], [390, 740], [375, 667]]) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "no-preference" });
     const page = await context.newPage();
     const errors = [];
@@ -219,13 +243,70 @@ try {
     assert.notEqual(await page.locator(".physics-canvas").evaluate((canvas) => canvas.toDataURL()), before);
     await page.screenshot({ path: path.join(output, `motion-${width}.png`) });
     await cycle.click();
+    await page.waitForTimeout(450);
+    // Freeze only the next processing timers so the transient layout can be measured reliably.
+    await page.clock.install();
+    await page.clock.pauseAt(new Date());
+    await page.getByRole("button", { name: "JSONをつくる", exact: true }).click();
+    assert.equal(await page.locator(".system-sketch .sketch-status").textContent(), "処理中");
+    await checkDemoGeometry(page, "system", width, height);
+    await page.clock.runFor(600);
+    assert.equal(await page.locator(".system-sketch .sketch-status").textContent(), "JSONを作成しました");
+    await checkDemoGeometry(page, "system", width, height);
+    await page.getByLabel("アイデアのタイトル", { exact: true }).fill("Another idea");
     await page.getByRole("button", { name: "JSONをつくる", exact: true }).click();
     await cycle.click();
-    await page.waitForTimeout(700);
+    await page.clock.runFor(700);
     assert.equal(await page.locator(".hero").getAttribute("data-mode"), "app");
     assert.deepEqual(errors, [], `normal-motion lifecycle at ${width}`);
     await context.close();
     console.log(`PASS normal motion and keyboard ${width}x${height}`);
+  }
+  if (!process.env.TEST_WIDTH) {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    const key = "portfolio:idea-notes:v1";
+    await page.goto(base, { waitUntil: "networkidle" });
+    for (const malformed of ["not-json", '[{"id":"x","title":"invalid","done":"yes"}]', '[{"id":"x","title":"one","done":false},{"id":"x","title":"two","done":true}]']) {
+      await page.evaluate(({ key, malformed }) => localStorage.setItem(key, malformed), { key, malformed });
+      await page.reload({ waitUntil: "networkidle" });
+      assert.equal(await page.getByRole("checkbox").count(), 2, "invalid saved notes must fall back safely");
+    }
+    const escaped = '<img src=x onerror="alert(1)">';
+    await page.getByLabel("つくりたいこと", { exact: true }).fill(escaped);
+    await page.getByRole("button", { name: "メモを追加", exact: true }).click();
+    assert.equal(await page.locator(".idea-list img").count(), 0);
+    assert.equal(await page.getByRole("checkbox", { name: escaped, exact: true }).count(), 1);
+    const otherTab = await context.newPage();
+    await otherTab.goto(base, { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: `${escaped}を削除`, exact: true }).click();
+    await otherTab.getByRole("checkbox", { name: escaped, exact: true }).waitFor({ state: "detached" });
+    await page.evaluate((key) => localStorage.setItem(key, "[]"), key);
+    await page.reload({ waitUntil: "networkidle" });
+    assert.equal(await page.getByRole("checkbox").count(), 0);
+    assert.equal(await page.locator(".idea-empty").textContent(), "メモはありません");
+    for (let index = 0; index < 13; index++) {
+      await page.getByLabel("つくりたいこと", { exact: true }).fill(`Idea ${index}`);
+      await page.getByRole("button", { name: "メモを追加", exact: true }).click();
+    }
+    assert.equal(await page.getByRole("checkbox").count(), 12);
+    assert.equal(await page.locator(".idea-notes .sketch-status").textContent(), "メモは12件までです。");
+    await context.close();
+    const blocked = await browser.newContext({ reducedMotion: "reduce" });
+    await blocked.addInitScript(() => {
+      Object.defineProperty(Storage.prototype, "setItem", { value: () => { throw new DOMException("Blocked", "QuotaExceededError"); } });
+    });
+    const blockedPage = await blocked.newPage();
+    await blockedPage.goto(base, { waitUntil: "networkidle" });
+    await blockedPage.getByLabel("つくりたいこと", { exact: true }).fill("Temporary idea");
+    await blockedPage.getByRole("button", { name: "メモを追加", exact: true }).click();
+    assert.equal(await blockedPage.getByRole("checkbox", { name: "Temporary idea", exact: true }).count(), 1);
+    assert((await blockedPage.locator(".idea-notes .sketch-status").textContent()).includes("一時保存"));
+    await blockedPage.getByRole("button", { name: "仕組みを作る", exact: true }).click();
+    await blockedPage.getByRole("button", { name: "アプリを作る", exact: true }).click();
+    assert.equal(await blockedPage.getByRole("checkbox", { name: "Temporary idea", exact: true }).count(), 1);
+    await blocked.close();
+    console.log("PASS notes validation, escaping, cross-tab sync, limits and blocked storage");
   }
   const request = await browser.newContext();
   for (const route of ["/api/contacts", "/api/projects?view=admin"]) assert.equal((await request.request.get(base + route)).status(), 401);

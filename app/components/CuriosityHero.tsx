@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { AppWindow, ArrowDownRight, ArrowRight, Check, CheckCircle2, Download, FileJson, Gamepad2, MoveDown, RefreshCw, Terminal, Users } from "lucide-react";
+import { AppWindow, ArrowDownRight, ArrowRight, CheckCircle2, Download, FileJson, Gamepad2, MoveDown, RefreshCw, Terminal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useCuriosity } from "./CuriosityContext";
+import IdeaNotes from "./IdeaNotes";
 
 const PhysicsSketch = dynamic(() => import("./PhysicsSketch"), {
   ssr: false,
@@ -15,17 +16,6 @@ const modes = [
   { id: "game" as const, name: "ゲーム", label: "ゲームを作る", Icon: Gamepad2 },
   { id: "system" as const, name: "仕組み", label: "仕組みを作る", Icon: Terminal },
 ];
-
-function AppSketch() {
-  const [joined, setJoined] = useState(false);
-  return <div className="app-sketch demo-surface">
-    <div className="sketch-app-header"><span className="mono"><AppWindow size={16} /> MAKERS</span><span className="mono">PROTOTYPE</span></div>
-    <div className="sketch-event-image"><Image src="/curiosity-workbench.webp" alt="ものづくりの道具" fill sizes="400px" /></div>
-    <div className="sketch-event-body"><span className="mono">SAT / 14:00</span><h2>ものづくりの会</h2><p className="sketch-members"><Users size={16} /><span aria-live="polite">参加予定 {joined ? 8 : 7}人</span><span className="member-initials" aria-hidden="true">S<span>T</span>{joined && <b>YOU</b>}</span></p>
-      <button className={`sketch-join ${joined ? "has-joined" : ""}`} aria-pressed={joined} onClick={() => setJoined(!joined)}>{joined ? <Check size={17} /> : <ArrowRight size={17} />}{joined ? "参加予定を取り消す" : "参加する"}</button>
-    </div>
-  </div>;
-}
 
 function SystemSketch() {
   const [title, setTitle] = useState("新しい制作物");
@@ -71,7 +61,7 @@ export default function CuriosityHero() {
       <div className="hero-bottom"><p>アプリ・ゲーム・Webをつくる。<br />玉木秀杷のポートフォリオです。</p><a className="round-link" href="#projects" aria-label="制作物一覧へ" onClick={() => selectFilter("all")}><ArrowDownRight size={29} /></a></div>
       <div className="curiosity-controls"><div className="mode-segment" role="group" aria-label="制作モード">{modes.map(({ id, name, label, Icon }) => <button key={id} aria-label={label} aria-pressed={mode === id} onClick={() => selectMode(id)}><Icon size={16} aria-hidden="true" /><span>{name}</span></button>)}</div><button className="icon-button mode-cycle" aria-label="次の制作モード" title={`次は、${modes[(index + 1) % modes.length].label}`} onClick={() => selectMode(modes[(index + 1) % modes.length].id)}><RefreshCw key={mode} size={18} /></button></div>
     </div>
-    <div className="curiosity-stage"><div className="curiosity-caption"><span className="mono" aria-live="polite">0{index + 1} / {current.label}</span><span className="mono">INTERACTIVE SKETCH</span></div><div className="curiosity-demo" key={mode}>{mode === "app" ? <AppSketch /> : mode === "game" ? <PhysicsSketch /> : <SystemSketch />}</div></div>
+    <div className="curiosity-stage"><div className="curiosity-caption"><span className="mono" aria-live="polite">0{index + 1} / {current.label}</span><span className="mono">INTERACTIVE SKETCH</span></div><div className="curiosity-demo" key={mode}>{mode === "app" ? <IdeaNotes /> : mode === "game" ? <PhysicsSketch /> : <SystemSketch />}</div></div>
     <div className="hero-foot"><span className="mono">好奇心を、動くものに。</span><a href="#projects" className="scroll-label mono">制作物を見る<MoveDown size={17} /></a></div>
   </section>;
 }

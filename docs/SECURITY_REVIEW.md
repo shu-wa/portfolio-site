@@ -27,6 +27,10 @@
 - 開発依存を含む監査はhigh 5件。根本は `braces` の深いパターンによるスタック枯渇の警告で、ESLint用の `micromatch` / `fast-glob` / Next.jsプラグインへ伝播しています。本番依存には含まれません。[アドバイザリ](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
 - npmが示す自動修正は `eslint-config-next` の14系への非互換変更です。Next.js 16の構成を壊す `npm audit fix --force` は実行せず、互換性のある修正版の確認を残課題とします。
 
+## 2026-10-04のメモアプリ
+
+アイデアメモだけは `portfolio:idea-notes:v1` という専用キーでlocalStorageへ保存します。API通信、ログへの送信、管理データの変更はありません。最大12件・48文字、読み込みサイズ、型、IDの重複を検証し、ユーザー入力はReactのテキストとして表示します。破損データは初期メモへ戻し、保存が拒否された場合はページ内の一時保存に切り替えます。秘密情報を保存する機能ではなく、共有端末では同じブラウザの利用者にメモが見える点に留意してください。JSONデモとシャッフルには永続保存を追加していません。
+
 ## AWSで必要な設定
 
 管理ユーザーを、既存ユーザープールの `portfolio-admin` グループへ追加してください。追加後は管理画面からログアウトして再ログインし、新しいトークンを取得します。グループにIAMロールを付ける必要はありません。[Cognito公式手順](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-user-groups.html)

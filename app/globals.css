@@ -272,17 +272,27 @@ button, input, textarea { border-radius: 0; }
 .sketch-app-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid #171b1725; }
 .sketch-app-header > span:first-child { display: flex; align-items: center; gap: 9px; }
 .sketch-app-header > span:last-child { font-size: 9px; color: var(--muted); }
-.sketch-event-image { height: 98px; position: relative; overflow: hidden; }
-.sketch-event-image img { object-fit: cover; object-position: right 44%; }
-.sketch-event-body { padding: 18px 20px; }
-.sketch-event-body > .mono { color: var(--muted); font-size: 10px; }
-.sketch-event-body h2 { font-size: 24px; line-height: 1.5; font-weight: 700; margin-top: 4px; }
-.sketch-members { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-top: 10px; }
-.member-initials { display: inline-flex; align-items: center; margin-left: auto; font-family: var(--font-geist-mono); font-size: 10px; gap: 8px; font-weight: 700; }
-.member-initials span { color: #315270; }
-.member-initials b { color: #40601c; }
-.sketch-join { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; width: 100%; margin-top: 16px; border: 1px solid var(--ink); color: var(--paper); background: var(--ink); font-size: 12px; font-weight: 600; }
-.sketch-join.has-joined { background: var(--green); color: var(--ink); }
+.idea-notes { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) 28px; }
+.idea-notes .sketch-app-header > span:first-child { font-size: 14px; font-weight: 700; }
+.idea-form { display: flex; gap: 10px; padding: 12px 20px 4px; }
+.idea-form input { width: 100%; min-width: 0; border: 0; border-bottom: 1px solid #171b1760; background: transparent; font-size: 14px; }
+.idea-form input::placeholder { color: #62675e; opacity: 1; }
+.idea-form .icon-button { width: 44px; height: 44px; flex-shrink: 0; }
+.idea-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 20px; }
+.idea-filters { display: flex; gap: 2px; }
+.idea-filters button { min-height: 32px; padding: 4px 8px; font-size: 11px; border: 0; background: transparent; }
+.idea-filters button[aria-pressed="true"] { background: var(--ink); color: white; }
+.idea-toolbar > .mono { font-size: 10px; white-space: nowrap; }
+.idea-list { min-height: 0; overflow: auto; overflow-anchor: none; margin: 0 20px; overscroll-behavior: contain; scrollbar-width: thin; }
+.idea-list:focus-visible { outline-offset: -3px; }
+.idea-list ul { list-style: none; margin: 0; padding: 0; }
+.idea-list li { display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #171b1725; }
+.idea-list label { flex: 1; min-width: 0; min-height: 44px; display: flex; align-items: center; gap: 10px; font-size: 12px; cursor: pointer; }
+.idea-list label input { width: 17px; height: 17px; flex-shrink: 0; accent-color: #315f30; }
+.idea-list label span { overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.idea-list li[data-done="true"] label span { text-decoration: line-through; color: var(--muted); }
+.idea-list .icon-button { width: 32px; height: 32px; flex-shrink: 0; border: 0; }
+.idea-empty { padding: 16px 0; font-size: 12px; color: var(--muted); }
 .physics-sketch { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) 44px; }
 .physics-field { min-height: 0; overflow: hidden; }
 .physics-canvas { display: block; width: 100%; height: 100%; object-fit: contain; touch-action: none; cursor: grab; }
@@ -293,6 +303,7 @@ button, input, textarea { border-radius: 0; }
 .physics-controls .icon-button { width: 44px; height: 44px; }
 .physics-controls button[aria-pressed="true"] { background: var(--ink); color: var(--green); }
 .physics-loading { height: 100%; display: flex; align-items: center; justify-content: center; gap: 18px; }
+.system-sketch { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) 28px; }
 .system-input { padding: 16px 20px 12px; }
 .system-input label { font-size: 11px; display: block; }
 .system-input > div { display: flex; gap: 10px; margin-top: 6px; }
@@ -302,11 +313,11 @@ button, input, textarea { border-radius: 0; }
 .system-flow li { position: relative; display: flex; align-items: center; flex-direction: column; gap: 6px; font-size: 11px; color: var(--muted); transition: color .2s; }
 .system-flow li[data-active="true"] { color: #315f30; font-weight: 700; }
 .system-flow .flow-arrow { position: absolute; top: 6px; right: -7px; color: #8b968a; }
-.system-output { display: flex; gap: 10px; align-items: center; margin: 0 20px; }
-.system-output pre { min-width: 0; flex: 1; height: 84px; margin: 0; overflow: auto; background: #171b17; color: #c8f553; padding: 10px; font-family: var(--font-geist-mono); font-size: 10px; line-height: 1.6; }
+.system-output { display: flex; gap: 10px; align-items: center; min-height: 0; margin: 0 20px; }
+.system-output pre { min-width: 0; flex: 1; height: 100%; margin: 0; overflow: auto; background: #171b17; color: #c8f553; padding: 10px; font-family: var(--font-geist-mono); font-size: 10px; line-height: 1.6; }
 .system-output .icon-button { flex-shrink: 0; width: 44px; height: 44px; }
 .system-output button:disabled, .works-toolbar-end button:disabled { cursor: not-allowed; }
-.sketch-status { min-height: 24px; padding: 5px 20px; font-size: 10px; }
+.sketch-status { min-height: 0; padding: 6px 20px; font-size: 10px; line-height: 16px; }
 .works-toolbar-end { display: flex; align-items: center; gap: 18px; }
 .works-toolbar-end .icon-button { width: 44px; height: 44px; }
 .works-grid.is-shuffled .work-item { animation: shuffle-in .45s ease both; }
@@ -321,7 +332,7 @@ button, input, textarea { border-radius: 0; }
   .mode-segment button { min-width: 74px; padding-inline: 10px; }
 }
 @media (max-width: 760px) {
-  .hero { min-height: 690px; height: calc(100svh - 46px); max-height: 880px; padding: 100px 6% 70px; }
+  .hero { display: flex; flex-direction: column; min-height: calc(100svh - 46px); height: auto; max-height: none; padding: 100px 6% 18px; }
   .hero .hero-image { height: 300px !important; bottom: 70px !important; opacity: .15; }
   .hero .hero-content { width: 100%; max-width: none; }
   .hero h1 { font-size: 36px; line-height: 1.2; }
@@ -332,19 +343,21 @@ button, input, textarea { border-radius: 0; }
   .curiosity-controls { margin-top: 16px; gap: 10px; }
   .mode-segment { flex: 1; max-width: 292px; }
   .mode-segment button { flex: 1; min-width: 0; padding-inline: 8px; font-size: 11px; gap: 6px; }
-  .curiosity-stage { position: relative; top: auto; right: auto; width: 100%; max-width: none; height: 244px; margin-top: 16px; transform: none; }
+  .curiosity-stage { position: relative; top: auto; right: auto; width: 100%; max-width: none; height: 256px; flex-shrink: 0; margin-top: 16px; transform: none; }
+  .hero-foot { position: static; margin-top: auto; padding-top: 14px; flex-shrink: 0; }
   .curiosity-caption { flex-wrap: nowrap; min-height: 18px; margin-bottom: 8px; }
   .curiosity-caption > .mono:first-child { font-size: 11px; }
   .curiosity-caption > .mono:last-child { width: auto; font-size: 8px; }
   .curiosity-demo { height: calc(100% - 26px); }
   .sketch-app-header { padding: 8px 12px; min-height: 30px; }
   .sketch-app-header .mono { font-size: 9px; }
-  .sketch-event-image { height: 40px; }
-  .sketch-event-body { padding: 10px 12px 12px; }
-  .sketch-event-body > .mono { display: none; }
-  .sketch-event-body h2 { font-size: 19px; margin-top: 0; }
-  .sketch-members { font-size: 11px; margin-top: 6px; }
-  .sketch-join { margin-top: 8px; }
+  .idea-notes .sketch-app-header > span:first-child { font-size: 12px; }
+  .idea-form { padding: 6px 12px 2px; }
+  .idea-form input { font-size: 16px; }
+  .idea-toolbar { padding: 2px 12px; }
+  .idea-filters button { min-height: 28px; font-size: 10px; }
+  .idea-list { margin-inline: 12px; }
+  .idea-list label { font-size: 11px; }
   .physics-controls > .mono { font-size: 9px; }
   .system-input { padding: 8px 12px 4px; }
   .system-input label { font-size: 10px; line-height: 12px; }
@@ -354,10 +367,31 @@ button, input, textarea { border-radius: 0; }
   .system-flow li { gap: 2px; font-size: 10px; }
   .system-flow li > svg:not(.flow-arrow) { width: 20px; height: 20px; }
   .system-output { margin-inline: 12px; }
-  .system-output pre { height: 44px; font-size: 9px; padding: 5px 8px; }
-  .sketch-status { padding: 4px 12px; min-height: 20px; }
+  .system-output pre { font-size: 9px; padding: 5px 8px; }
+  .sketch-status { padding-inline: 12px; }
   .works-toolbar-end { gap: 12px; }
   .works-toolbar-end > .mono { font-size: 9px; }
+}
+@media (max-width: 760px) and (max-height: 800px) {
+  .hero { padding-top: 90px; }
+  .hero h1 { font-size: 32px; }
+  .hero .hero-intro { margin-bottom: 12px; }
+  .hero-bottom, .curiosity-controls { margin-top: 12px; }
+  .curiosity-stage { margin-top: 10px; }
+}
+@media (max-width: 760px) and (max-height: 700px) {
+  .hero { padding-top: 84px; }
+  .hero h1 { font-size: 28px; }
+  .curiosity-stage { height: 210px; }
+  .sketch-app-header { min-height: 26px; padding-block: 5px; }
+  .idea-notes, .system-sketch { grid-template-rows: auto auto auto minmax(0, 1fr) 20px; }
+  .idea-form .icon-button, .system-input .icon-button, .system-output .icon-button { width: 32px; height: 32px; }
+  .idea-filters button { min-height: 24px; padding-block: 2px; }
+  .idea-list label { min-height: 34px; }
+  .system-input { padding-block: 4px; }
+  .system-flow li { gap: 0; font-size: 9px; }
+  .system-flow li > svg:not(.flow-arrow) { width: 16px; height: 16px; }
+  .sketch-status { padding-block: 2px; font-size: 9px; }
 }
 @media (max-width: 380px) {
   .hero { padding-top: 90px; }
@@ -365,4 +399,8 @@ button, input, textarea { border-radius: 0; }
   .hero .hero-intro { margin-bottom: 12px; }
   .hero-bottom, .curiosity-controls { margin-top: 12px; }
   .curiosity-stage { margin-top: 10px; }
+}
+@media (max-width: 380px) and (max-height: 700px) {
+  .hero { padding-top: 84px; }
+  .hero h1 { font-size: 28px; }
 }
