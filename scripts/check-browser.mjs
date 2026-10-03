@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -7,10 +7,12 @@ import AxeBuilder from "@axe-core/playwright";
 const base = process.env.TEST_BASE_URL ?? "http://localhost:3100";
 const output = path.resolve(".artifacts/browser");
 await mkdir(output, { recursive: true });
-const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL ?? "chrome", headless: true });
 const results = [];
+const viewports = [[1440, 1000], [1920, 1080], [768, 1024], [390, 844], [320, 740]].filter(([width]) => !process.env.TEST_WIDTH || width === Number(process.env.TEST_WIDTH));
+assert(viewports.length > 0, "TEST_WIDTH must match a supported viewport");
+const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL ?? "chrome", headless: true });
 try {
-  for (const [width, height] of [[1440, 1000], [1920, 1080], [768, 1024], [390, 844], [320, 740]]) {
+  for (const [width, height] of viewports) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce" });
     const page = await context.newPage();
     const errors = [];
@@ -50,6 +52,75 @@ try {
     assert(!(await page.locator("body").textContent()).includes("A LITTLE PLAYGROUND"));
     const homeAccessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
     assert.deepEqual(homeAccessibility.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) })), [], `home accessibility at ${width}`);
+    async function checkDemo(mode) {
+      assert.equal(await page.locator(".hero").getAttribute("data-mode"), mode);
+      assert(await page.locator(".curiosity-demo").evaluate((element) => {
+        const frame = element.getBoundingClientRect();
+        return [...element.querySelectorAll("button,input,h2,.system-flow,.system-output")].every((child) => {
+          const rect = child.getBoundingClientRect();
+          return rect.left >= frame.left - 1 && rect.right <= frame.right + 1 && rect.bottom <= frame.bottom + 1;
+        });
+      }), `demo controls must fit for ${mode} at ${width}`);
+      if (width <= 760) assert(await page.evaluate(() => document.querySelector(".curiosity-stage").getBoundingClientRect().bottom < document.querySelector(".hero-foot").getBoundingClientRect().top), `demo must not overlap footer at ${width}`);
+      else assert(await page.evaluate(() => document.querySelector(".hero-content").getBoundingClientRect().right < document.querySelector(".curiosity-stage").getBoundingClientRect().left), `demo must not overlap headline at ${width}`);
+      const accessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      assert.deepEqual(accessibility.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) })), [], `${mode} accessibility at ${width}`);
+      await page.screenshot({ path: path.join(output, `${mode}-${width}.png`) });
+    }
+    await page.getByRole("button", { name: "参加する", exact: true }).click();
+    assert.equal(await page.getByRole("button", { name: "参加予定を取り消す", exact: true }).getAttribute("aria-pressed"), "true");
+    assert((await page.locator(".sketch-members").textContent()).includes("8人"));
+    await page.getByRole("button", { name: "参加予定を取り消す", exact: true }).click();
+    await checkDemo("app");
+    await page.getByRole("button", { name: "次の制作モード", exact: true }).click();
+    await page.locator(".physics-canvas").waitFor();
+    assert.equal(await page.getByRole("button", { name: "ゲーム", exact: true }).getAttribute("aria-pressed"), "true");
+    assert(await page.locator(".physics-canvas").evaluate((canvas) => {
+      const pixels = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+      const colors = new Set();
+      for (let index = 0; index < pixels.length; index += 16) colors.add(`${pixels[index]},${pixels[index + 1]},${pixels[index + 2]}`);
+      return colors.size > 30;
+    }), "physics canvas must contain visible rendered parts");
+    const beforeKick = await page.locator(".physics-canvas").evaluate((canvas) => canvas.toDataURL());
+    await page.getByRole("button", { name: "パーツを跳ねさせる", exact: true }).click();
+    await page.waitForTimeout(250);
+    assert.notEqual(await page.locator(".physics-canvas").evaluate((canvas) => canvas.toDataURL()), beforeKick, "physics must actually move");
+    await page.getByRole("button", { name: "重力を反転", exact: true }).click();
+    assert.equal(await page.getByRole("button", { name: "重力を反転", exact: true }).getAttribute("aria-pressed"), "true");
+    await page.getByRole("button", { name: "パーツを元に戻す", exact: true }).click();
+    assert.equal(await page.getByRole("button", { name: "重力を反転", exact: true }).getAttribute("aria-pressed"), "false");
+    const beforeDrag = await page.locator(".physics-canvas").evaluate((canvas) => canvas.toDataURL());
+    const dragPoint = await page.locator(".physics-canvas").evaluate((canvas) => {
+      const rect = canvas.getBoundingClientRect();
+      const scale = Math.min(rect.width / 480, rect.height / 280);
+      return { x: rect.left + (rect.width - 480 * scale) / 2 + 65 * scale, y: rect.top + (rect.height - 280 * scale) / 2 + 88 * scale, scale };
+    });
+    await page.mouse.move(dragPoint.x, dragPoint.y);
+    await page.mouse.down();
+    await page.mouse.move(dragPoint.x + 70 * dragPoint.scale, dragPoint.y - 25 * dragPoint.scale, { steps: 5 });
+    await page.waitForTimeout(100);
+    await page.mouse.up();
+    assert.notEqual(await page.locator(".physics-canvas").evaluate((canvas) => canvas.toDataURL()), beforeDrag, "physics parts must be draggable");
+    await page.getByRole("button", { name: "パーツを元に戻す", exact: true }).click();
+    await checkDemo("game");
+    await page.getByRole("button", { name: "次の制作モード", exact: true }).click();
+    await page.getByLabel("アイデアのタイトル", { exact: true }).fill("  Browser Sketch  ");
+    await page.getByRole("button", { name: "JSONをつくる", exact: true }).click();
+    await page.getByRole("status").filter({ hasText: "JSONを作成しました" }).waitFor();
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "JSONをダウンロード", exact: true }).click();
+    const download = await downloadPromise;
+    const downloadPath = path.join(output, `idea-${width}.json`);
+    await download.saveAs(downloadPath);
+    assert.deepEqual(JSON.parse(await readFile(downloadPath, "utf8")), { title: "Browser Sketch", status: "idea", tags: [] });
+    await checkDemo("system");
+    await page.getByLabel("アイデアのタイトル", { exact: true }).fill(" ");
+    await page.getByRole("button", { name: "JSONをつくる", exact: true }).click();
+    await page.getByRole("status").filter({ hasText: "タイトルを入力してください" }).waitFor();
+    await page.getByRole("button", { name: "次の制作モード", exact: true }).click();
+    assert.equal(await page.locator(".hero").getAttribute("data-mode"), "app");
+    await page.getByRole("button", { name: "すべて", exact: true }).click();
+    await page.locator("#top").scrollIntoViewIfNeeded();
     await page.getByRole("link", { name: "制作物を見る", exact: true }).click();
     assert(await page.locator("#projects").evaluate((element) => {
       const top = element.getBoundingClientRect().top;
@@ -61,6 +132,11 @@ try {
     assert((await page.locator(".work-item").count()) < originalCount);
     await page.getByRole("button", { name: "すべて", exact: true }).click();
     assert.equal(await page.locator(".work-item").count(), originalCount);
+    const beforeShuffle = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    await page.getByRole("button", { name: "制作物をシャッフル", exact: true }).click();
+    const afterShuffle = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    assert.notDeepEqual(afterShuffle, beforeShuffle);
+    assert.deepEqual([...afterShuffle].sort(), [...beforeShuffle].sort());
     assert(await page.locator(".phone-screen").evaluate((image) => {
       const frame = image.parentElement.getBoundingClientRect();
       const rect = image.getBoundingClientRect();
@@ -126,6 +202,30 @@ try {
     results.push({ width, height, projects: originalCount, cls: layout.shifts, cspViolations: csp.length, runtimeErrors: errors.length, accessibilityViolations: homeAccessibility.violations.length + detailAccessibility.violations.length });
     await context.close();
     console.log(`PASS viewport ${width}x${height}`);
+  }
+  if (!process.env.TEST_WIDTH) for (const [width, height] of [[1440, 1000], [390, 844]]) {
+    const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "no-preference" });
+    const page = await context.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+    await page.goto(base, { waitUntil: "networkidle" });
+    const cycle = page.getByRole("button", { name: "次の制作モード", exact: true });
+    await cycle.focus(); await page.keyboard.press("Enter");
+    await page.locator(".physics-canvas").waitFor();
+    const before = await page.locator(".physics-canvas").evaluate((canvas) => canvas.toDataURL());
+    await page.getByRole("button", { name: "パーツを跳ねさせる", exact: true }).click();
+    await page.waitForTimeout(800);
+    assert.notEqual(await page.locator(".physics-canvas").evaluate((canvas) => canvas.toDataURL()), before);
+    await page.screenshot({ path: path.join(output, `motion-${width}.png`) });
+    await cycle.click();
+    await page.getByRole("button", { name: "JSONをつくる", exact: true }).click();
+    await cycle.click();
+    await page.waitForTimeout(700);
+    assert.equal(await page.locator(".hero").getAttribute("data-mode"), "app");
+    assert.deepEqual(errors, [], `normal-motion lifecycle at ${width}`);
+    await context.close();
+    console.log(`PASS normal motion and keyboard ${width}x${height}`);
   }
   const request = await browser.newContext();
   for (const route of ["/api/contacts", "/api/projects?view=admin"]) assert.equal((await request.request.get(base + route)).status(), 401);

@@ -1,26 +1,20 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, Asterisk, LogIn, MoveDown } from "lucide-react";
+import { ArrowUpRight, Asterisk, LogIn } from "lucide-react";
 import AboutSection from "./components/AboutSection";
 import ContactForm from "./components/ContactForm";
 import ProjectList from "./components/ProjectList";
 import SiteHeader from "./components/SiteHeader";
 import PortfolioMotion from "./components/PortfolioMotion";
+import CuriosityHero from "./components/CuriosityHero";
+import { CuriosityProvider } from "./components/CuriosityContext";
 import { getPublicProjects } from "../lib/projects";
 
 export default async function Home() {
   const projects = await getPublicProjects();
   return <>
     <SiteHeader /><PortfolioMotion />
-    <main id="main-content">
-      <section id="top" className="hero">
-        <Image className="hero-image" src="/curiosity-workbench.webp" alt="ゲームコントローラー、回路、ギターピックなど、好奇心を表す実験道具" fill preload sizes="100vw" />
-        <div className="hero-content"><div className="hero-intro"><span className="mono">SHUWA TAMAKI</span><span className="mono">PORTFOLIO / APPS, GAMES &amp; WEB</span></div>
-          <h1><span>とりあえず、</span><span>なんでも</span><span>やってみる<span className="hero-exclaim">!!</span></span></h1>
-          <div className="hero-bottom"><p>アプリ・ゲーム・Webをつくる。<br />玉木秀杷のポートフォリオです。</p><a className="round-link" href="#projects" aria-label="制作物一覧へ"><ArrowDownRight size={29} /></a></div>
-        </div>
-        <div className="hero-foot"><span className="mono">好奇心を、動くものに。</span><a href="#projects" className="scroll-label mono">制作物を見る<MoveDown size={17} /></a></div>
-      </section>
+    <CuriosityProvider><main id="main-content">
+      <CuriosityHero />
       <div className="ticker" aria-hidden="true"><div>{[0, 1, 2, 3].map((i) => <span key={i}>TRY SOMETHING NEW <Asterisk /> MAKE SOMETHING REAL <Asterisk /></span>)}</div></div>
       <section id="projects" className="works-section section-pad">
         <div className="section-heading"><span className="mono">01 / WORKS</span><span className="mono">APPS, GAMES &amp; WEB</span></div>
@@ -37,7 +31,7 @@ export default async function Home() {
         <div className="section-heading"><span className="mono">04 / CONTACT</span><span className="mono">NEW CONNECTIONS, NEW POSSIBILITIES.</span></div>
         <div className="contact-title" data-reveal><h2>お問い合わせ<ArrowUpRight aria-hidden="true" /></h2><p>お仕事のお話も、アイデアの相談も。<br />新しいきっかけを、お待ちしています。</p></div><ContactForm />
       </section>
-    </main>
+    </main></CuriosityProvider>
     <footer className="site-footer"><a className="brand" href="#top">ST<span className="brand-plus">+</span></a><span className="mono">© 2026 SHUWA TAMAKI</span><Link href="/admin" prefetch={false} className="mono"><LogIn size={16} />管理者ログイン</Link><a href="#top" className="mono">トップへ <ArrowUpRight size={16} /></a></footer>
   </>;
 }

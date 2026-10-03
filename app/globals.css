@@ -246,3 +246,123 @@ button, input, textarea { border-radius: 0; }
 }
 @media (max-width: 380px) { .hero { padding-top: 95px; } .hero h1 { font-size: 39px; } .hero-bottom p { font-size: 11px; } .hero-image { height: 150px !important; } .hero-foot > span.mono { display: none; } .app-wordmark { font-size: 38px; } .app-visual { padding: 20px; } .mindset-statement h2 { font-size: 32px; } .section-title h2 { font-size: 42px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+.hero[data-mode="app"] { background: #e9ece8; }
+.hero[data-mode="game"] { background: #f5e5ef; }
+.hero[data-mode="system"] { background: #e1e9f3; }
+.hero { transition: background .35s; }
+.hero .hero-image { opacity: .24; }
+.hero .hero-content { width: 54%; max-width: 770px; }
+.hero .hero-intro { flex-wrap: wrap; gap: 12px 20px; }
+.curiosity-controls { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+.mode-segment { display: flex; border: 1px solid #171b1740; background: #f6f7f4; }
+.mode-segment button { min-height: 44px; min-width: 84px; border: 0; background: transparent; display: flex; gap: 8px; align-items: center; justify-content: center; font-size: 12px; padding: 10px 14px; }
+.mode-segment button[aria-pressed="true"] { color: white; background: var(--ink); }
+.mode-segment button:hover:not([aria-pressed="true"]) { background: #dce3d8; }
+.mode-cycle { width: 44px; height: 44px; flex-shrink: 0; }
+.mode-cycle svg { animation: mode-turn .4s ease; }
+@keyframes mode-turn { from { transform: rotate(-120deg); } to { transform: rotate(0); } }
+.curiosity-stage { position: absolute; width: 34%; max-width: 460px; height: 370px; top: 50%; right: 6%; transform: translateY(-44%); }
+.curiosity-caption { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 22px; margin-bottom: 14px; }
+.curiosity-caption > .mono:first-child { font-size: 13px; font-weight: 700; }
+.curiosity-caption > .mono:last-child { font-size: 9px; color: var(--muted); }
+.curiosity-demo { height: calc(100% - 36px); animation: sketch-in .4s ease both; }
+@keyframes sketch-in { from { opacity: 0; transform: translateY(10px) rotate(1deg); } to { opacity: 1; transform: none; } }
+.demo-surface { height: 100%; overflow: hidden; }
+.sketch-app-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid #171b1725; }
+.sketch-app-header > span:first-child { display: flex; align-items: center; gap: 9px; }
+.sketch-app-header > span:last-child { font-size: 9px; color: var(--muted); }
+.sketch-event-image { height: 98px; position: relative; overflow: hidden; }
+.sketch-event-image img { object-fit: cover; object-position: right 44%; }
+.sketch-event-body { padding: 18px 20px; }
+.sketch-event-body > .mono { color: var(--muted); font-size: 10px; }
+.sketch-event-body h2 { font-size: 24px; line-height: 1.5; font-weight: 700; margin-top: 4px; }
+.sketch-members { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-top: 10px; }
+.member-initials { display: inline-flex; align-items: center; margin-left: auto; font-family: var(--font-geist-mono); font-size: 10px; gap: 8px; font-weight: 700; }
+.member-initials span { color: #315270; }
+.member-initials b { color: #40601c; }
+.sketch-join { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; width: 100%; margin-top: 16px; border: 1px solid var(--ink); color: var(--paper); background: var(--ink); font-size: 12px; font-weight: 600; }
+.sketch-join.has-joined { background: var(--green); color: var(--ink); }
+.physics-sketch { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) 44px; }
+.physics-field { min-height: 0; overflow: hidden; }
+.physics-canvas { display: block; width: 100%; height: 100%; object-fit: contain; touch-action: none; cursor: grab; }
+.physics-canvas:active { cursor: grabbing; }
+.physics-controls { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.physics-controls > .mono { font-size: 10px; }
+.physics-controls > div { display: flex; gap: 4px; }
+.physics-controls .icon-button { width: 44px; height: 44px; }
+.physics-controls button[aria-pressed="true"] { background: var(--ink); color: var(--green); }
+.physics-loading { height: 100%; display: flex; align-items: center; justify-content: center; gap: 18px; }
+.system-input { padding: 16px 20px 12px; }
+.system-input label { font-size: 11px; display: block; }
+.system-input > div { display: flex; gap: 10px; margin-top: 6px; }
+.system-input input { width: 100%; min-width: 0; border: 0; border-bottom: 1px solid #171b1760; background: transparent; font-size: 14px; }
+.system-input .icon-button { flex-shrink: 0; width: 44px; height: 44px; }
+.system-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; margin: 2px 20px 14px; padding: 0; }
+.system-flow li { position: relative; display: flex; align-items: center; flex-direction: column; gap: 6px; font-size: 11px; color: var(--muted); transition: color .2s; }
+.system-flow li[data-active="true"] { color: #315f30; font-weight: 700; }
+.system-flow .flow-arrow { position: absolute; top: 6px; right: -7px; color: #8b968a; }
+.system-output { display: flex; gap: 10px; align-items: center; margin: 0 20px; }
+.system-output pre { min-width: 0; flex: 1; height: 84px; margin: 0; overflow: auto; background: #171b17; color: #c8f553; padding: 10px; font-family: var(--font-geist-mono); font-size: 10px; line-height: 1.6; }
+.system-output .icon-button { flex-shrink: 0; width: 44px; height: 44px; }
+.system-output button:disabled, .works-toolbar-end button:disabled { cursor: not-allowed; }
+.sketch-status { min-height: 24px; padding: 5px 20px; font-size: 10px; }
+.works-toolbar-end { display: flex; align-items: center; gap: 18px; }
+.works-toolbar-end .icon-button { width: 44px; height: 44px; }
+.works-grid.is-shuffled .work-item { animation: shuffle-in .45s ease both; }
+@keyframes shuffle-in { from { opacity: .5; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (max-width: 1000px) {
+  .hero h1 { font-size: 58px; }
+  .hero .hero-intro span:last-child { display: none; }
+  .curiosity-stage { width: 40%; right: 5%; }
+  .curiosity-caption { flex-wrap: wrap; gap: 3px; margin-bottom: 9px; }
+  .curiosity-caption > .mono:last-child { width: 100%; }
+  .curiosity-demo { height: calc(100% - 42px); }
+  .mode-segment button { min-width: 74px; padding-inline: 10px; }
+}
+@media (max-width: 760px) {
+  .hero { min-height: 690px; height: calc(100svh - 46px); max-height: 880px; padding: 100px 6% 70px; }
+  .hero .hero-image { height: 300px !important; bottom: 70px !important; opacity: .15; }
+  .hero .hero-content { width: 100%; max-width: none; }
+  .hero h1 { font-size: 36px; line-height: 1.2; }
+  .hero .hero-intro { margin-bottom: 18px; }
+  .hero .hero-intro span:first-child { font-size: 21px; }
+  .hero-bottom { margin-top: 16px; align-items: center; }
+  .hero-bottom p { font-size: 11px; line-height: 1.9; }
+  .curiosity-controls { margin-top: 16px; gap: 10px; }
+  .mode-segment { flex: 1; max-width: 292px; }
+  .mode-segment button { flex: 1; min-width: 0; padding-inline: 8px; font-size: 11px; gap: 6px; }
+  .curiosity-stage { position: relative; top: auto; right: auto; width: 100%; max-width: none; height: 244px; margin-top: 16px; transform: none; }
+  .curiosity-caption { flex-wrap: nowrap; min-height: 18px; margin-bottom: 8px; }
+  .curiosity-caption > .mono:first-child { font-size: 11px; }
+  .curiosity-caption > .mono:last-child { width: auto; font-size: 8px; }
+  .curiosity-demo { height: calc(100% - 26px); }
+  .sketch-app-header { padding: 8px 12px; min-height: 30px; }
+  .sketch-app-header .mono { font-size: 9px; }
+  .sketch-event-image { height: 40px; }
+  .sketch-event-body { padding: 10px 12px 12px; }
+  .sketch-event-body > .mono { display: none; }
+  .sketch-event-body h2 { font-size: 19px; margin-top: 0; }
+  .sketch-members { font-size: 11px; margin-top: 6px; }
+  .sketch-join { margin-top: 8px; }
+  .physics-controls > .mono { font-size: 9px; }
+  .system-input { padding: 8px 12px 4px; }
+  .system-input label { font-size: 10px; line-height: 12px; }
+  .system-input > div { margin-top: 4px; }
+  .system-input input { font-size: 16px; }
+  .system-flow { margin: 4px 12px 2px; }
+  .system-flow li { gap: 2px; font-size: 10px; }
+  .system-flow li > svg:not(.flow-arrow) { width: 20px; height: 20px; }
+  .system-output { margin-inline: 12px; }
+  .system-output pre { height: 44px; font-size: 9px; padding: 5px 8px; }
+  .sketch-status { padding: 4px 12px; min-height: 20px; }
+  .works-toolbar-end { gap: 12px; }
+  .works-toolbar-end > .mono { font-size: 9px; }
+}
+@media (max-width: 380px) {
+  .hero { padding-top: 90px; }
+  .hero h1 { font-size: 32px; }
+  .hero .hero-intro { margin-bottom: 12px; }
+  .hero-bottom, .curiosity-controls { margin-top: 12px; }
+  .curiosity-stage { margin-top: 10px; }
+}
