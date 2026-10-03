@@ -6,6 +6,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 const base = process.env.TEST_BASE_URL ?? "http://localhost:3100";
 const output = path.resolve(".artifacts/browser");
+const notesOnly = process.env.TEST_SCOPE === "notes";
 await mkdir(output, { recursive: true });
 const results = [];
 const viewports = [[1440, 1000], [1920, 1080], [768, 1024], [390, 844], [320, 740], [390, 740], [430, 740], [375, 667]].filter(([width]) => !process.env.TEST_WIDTH || width === Number(process.env.TEST_WIDTH));
@@ -24,7 +25,7 @@ async function checkDemoGeometry(page, mode, width, height) {
   if (width > 760) assert(await page.evaluate(() => document.querySelector(".hero-content").getBoundingClientRect().right < document.querySelector(".curiosity-stage").getBoundingClientRect().left), `demo must not overlap headline at ${width}`);
 }
 try {
-  for (const [width, height] of viewports) {
+  for (const [width, height] of notesOnly ? [] : viewports) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce" });
     const page = await context.newPage();
     const errors = [];
@@ -86,6 +87,7 @@ try {
     await page.getByRole("button", { name: "完了したメモを表示", exact: true }).click();
     assert(await note.isChecked());
     await page.reload({ waitUntil: "networkidle" });
+    await note.waitFor();
     assert(await note.isChecked(), "notes must survive reload");
     await note.uncheck();
     assert(!(await note.isChecked()));
@@ -227,7 +229,7 @@ try {
     await context.close();
     console.log(`PASS viewport ${width}x${height}`);
   }
-  if (!process.env.TEST_WIDTH) for (const [width, height] of [[1440, 1000], [390, 740], [375, 667]]) {
+  if (!process.env.TEST_WIDTH && !notesOnly) for (const [width, height] of [[1440, 1000], [390, 740], [375, 667]]) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "no-preference" });
     const page = await context.newPage();
     const errors = [];
@@ -262,7 +264,7 @@ try {
     await context.close();
     console.log(`PASS normal motion and keyboard ${width}x${height}`);
   }
-  if (!process.env.TEST_WIDTH) {
+  if (!process.env.TEST_WIDTH || notesOnly) {
     const context = await browser.newContext({ reducedMotion: "reduce" });
     const page = await context.newPage();
     const key = "portfolio:idea-notes:v1";
@@ -279,10 +281,12 @@ try {
     assert.equal(await page.getByRole("checkbox", { name: escaped, exact: true }).count(), 1);
     const otherTab = await context.newPage();
     await otherTab.goto(base, { waitUntil: "networkidle" });
+    await otherTab.getByRole("checkbox", { name: escaped, exact: true }).waitFor();
     await page.getByRole("button", { name: `${escaped}を削除`, exact: true }).click();
     await otherTab.getByRole("checkbox", { name: escaped, exact: true }).waitFor({ state: "detached" });
     await page.evaluate((key) => localStorage.setItem(key, "[]"), key);
     await page.reload({ waitUntil: "networkidle" });
+    await page.locator(".idea-empty").waitFor();
     assert.equal(await page.getByRole("checkbox").count(), 0);
     assert.equal(await page.locator(".idea-empty").textContent(), "メモはありません");
     for (let index = 0; index < 13; index++) {
@@ -313,7 +317,7 @@ try {
   const hostile = await request.request.post(base + "/api/contact", { headers: { Origin: "https://evil.example" }, data: { name: "Test", email: "test@example.com", message: "Test" } });
   assert.equal(hostile.status(), 403);
   await request.close();
-  await writeFile(path.join(output, "results.json"), JSON.stringify(results, null, 2));
+  if (!notesOnly) await writeFile(path.join(output, "results.json"), JSON.stringify(results, null, 2));
   console.log("Browser checks passed. Screenshots: .artifacts/browser");
 } finally {
   await browser.close();
