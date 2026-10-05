@@ -14,6 +14,12 @@ assert(viewports.length > 0, "TEST_WIDTH must match a supported viewport");
 const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL ?? "chrome", headless: true });
 async function checkDemoGeometry(page, mode, width, height) {
   assert.equal(await page.locator(".hero").getAttribute("data-mode"), mode);
+  assert(await page.evaluate(() => {
+    const controls = document.querySelector(".curiosity-controls").getBoundingClientRect();
+    const footer = document.querySelector(".hero-foot").getBoundingClientRect();
+    const hero = document.querySelector(".hero").getBoundingClientRect();
+    return controls.bottom + 8 <= footer.top && controls.bottom <= hero.bottom;
+  }), `mode controls must not overlap footer or be clipped at ${width}x${height}`);
   assert(await page.locator(".curiosity-demo").evaluate((element) => {
     const frame = element.getBoundingClientRect();
     return [...element.querySelectorAll("button,input,h2,.system-flow,.system-output,.sketch-status,.idea-list")].filter((child) => !child.closest(".idea-list") || child.classList.contains("idea-list")).every((child) => {

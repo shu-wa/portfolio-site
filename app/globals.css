@@ -398,3 +398,50 @@ button, input, textarea { border-radius: 0; }
   .hero { padding-top: 84px; }
   .hero h1 { font-size: 28px; }
 }
+@media (min-width: 761px) {
+  .hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); grid-template-rows: minmax(min-content, 1fr) auto; column-gap: 6%; row-gap: 36px; min-height: min(980px, calc(100svh - 72px)); height: auto; max-height: none; padding-bottom: 24px; }
+  .hero .hero-content { width: 100%; min-width: 0; }
+  .curiosity-stage { position: static; width: 100%; transform: none; align-self: center; justify-self: end; }
+  .hero-foot { position: static; grid-column: 1 / -1; align-self: end; }
+  .curiosity-controls { flex-wrap: wrap; row-gap: 8px; }
+}
+@media (min-width: 761px) and (max-height: 850px) {
+  .hero { padding-top: 110px; row-gap: 24px; }
+  .hero .hero-intro { margin-bottom: 24px; }
+  .hero-bottom { margin-top: 20px; }
+  .curiosity-controls { margin-top: 18px; }
+}
+@media (min-width: 1001px) and (max-height: 850px) {
+  .hero h1 { font-size: 72px; }
+}
+@media (min-width: 761px) and (max-height: 700px) {
+  .hero { padding-top: 100px; padding-bottom: 18px; row-gap: 20px; }
+  .hero h1 { font-size: 44px; }
+  .hero .hero-intro { margin-bottom: 20px; }
+  .hero-bottom { margin-top: 18px; }
+  .hero-bottom p { font-size: 12px; line-height: 1.8; }
+  .round-link { width: 52px; height: 52px; }
+  .curiosity-controls { margin-top: 16px; }
+  .curiosity-stage { height: 320px; }
+}
+@media (min-width: 1001px) and (max-height: 700px) {
+  .hero h1 { font-size: 56px; }
+}
+@media (min-width: 761px) and (max-height: 550px) {
+  .hero { padding-top: 90px; padding-bottom: 14px; row-gap: 14px; }
+  .hero h1 { font-size: 36px; }
+  .hero .hero-intro { margin-bottom: 14px; }
+  .hero .hero-intro span:first-child { font-size: 20px; }
+  .hero-bottom { margin-top: 14px; }
+  .round-link { width: 44px; height: 44px; }
+  .curiosity-controls { margin-top: 12px; }
+  .curiosity-stage { height: 300px; }
+  .sketch-app-header { padding: 10px 16px; }
+  .idea-form { padding: 8px 16px 4px; }
+  .idea-toolbar { padding-inline: 16px; }
+  .idea-list { margin-inline: 16px; }
+  .system-input { padding: 8px 16px 6px; }
+  .system-flow { margin: 2px 16px 8px; }
+  .system-output { margin-inline: 16px; }
+  .sketch-status { padding-inline: 16px; }
+}
