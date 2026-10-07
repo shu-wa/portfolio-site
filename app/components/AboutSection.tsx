@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, GitBranch } from "lucide-react";
 
 export default function AboutSection() {
   return <section id="about" className="about-section section-pad">
@@ -11,6 +11,7 @@ export default function AboutSection() {
         <p className="about-intro">気になるものが、<br />ひとつに収まらない。</p>
         <p>芝浦工業大学 デザイン工学部で、ロボティクス・情報デザインを学んでいます。アプリ、ゲーム、データベース、Web。分野を決める前に、まず触ってみる。その積み重ねが、わたしの強みです。</p>
         <p>大学から始めたギターも、12年間続けたサッカーも。初めてのことに飛び込んで、仲間と試行錯誤する時間が好きです。</p>
+        <div className="profile-links"><a className="action-link github-profile-link" href="https://github.com/shu-wa" target="_blank" rel="noopener noreferrer"><GitBranch size={20} aria-hidden="true" /><span>GitHubでコードを見る</span><ArrowUpRight size={18} aria-hidden="true" /></a></div>
         <div className="history"><div><span className="mono">2021</span><span>多摩科学技術高校 入学</span></div><div><span className="mono">2024</span><span>芝浦工業大学 入学</span></div><div><span className="mono">NOW</span><span>好奇心を、制作物に。<ArrowUpRight size={17} /></span></div></div>
       </div>
     </div>

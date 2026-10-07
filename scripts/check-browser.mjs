@@ -67,6 +67,24 @@ try {
     assert.equal(await page.getByRole("heading", { name: "制作物一覧", exact: true }).count(), 1);
     assert.equal(await page.getByRole("heading", { name: "お問い合わせ", exact: true }).count(), 1);
     assert.equal(await page.getByRole("link", { name: "管理者ログイン", exact: true }).getAttribute("href"), "/admin");
+    assert.equal(await page.locator(".github-profile-link").count(), 2);
+    for (const link of await page.locator(".github-profile-link").all()) {
+      assert.equal(await link.getAttribute("href"), "https://github.com/shu-wa");
+      assert.equal(await link.getAttribute("target"), "_blank");
+      assert.equal(await link.getAttribute("rel"), "noopener noreferrer");
+    }
+    assert(await page.locator(".profile-links span").evaluate((element) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      return range.getClientRects().length === 1;
+    }), `profile GitHub label must fit on one line at ${width}`);
+    assert(await page.locator(".header-github").evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const brand = document.querySelector(".site-header .brand").getBoundingClientRect();
+      const nav = document.querySelector(".desktop-nav").getBoundingClientRect();
+      return rect.height >= 44 && rect.left > brand.right && (nav.width === 0 || rect.left > nav.right)
+        && rect.right <= innerWidth && element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
+    }), `GitHub header link must fit and be clickable at ${width}`);
     assert.equal(await page.locator(".curiosity-prompt,.guitar-lab,#playground").count(), 0);
     assert(!(await page.locator("body").textContent()).includes("A LITTLE PLAYGROUND"));
     const homeAccessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
@@ -229,7 +247,8 @@ try {
     await page.waitForURL(`**/projects/${tsudowa.slug}`);
     await page.waitForLoadState("networkidle");
     assert.equal(await page.getByRole("heading", { level: 1 }).textContent(), "TSUDOWA");
-    assert.equal(await page.locator('a[href*="github.com"]').count(), 0);
+    assert.equal(await page.locator('main a[href*="github.com"]').count(), 0, "TSUDOWA must not expose a repository link");
+    assert.equal(await page.locator(".header-github").getAttribute("href"), "https://github.com/shu-wa");
     assert.equal(await page.locator(".decision").count(), 0);
     for (const image of await page.locator(".detail-media img").all()) {
       await image.scrollIntoViewIfNeeded();

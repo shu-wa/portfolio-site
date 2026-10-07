@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, GitBranch, Menu, X } from "lucide-react";
 import { useRef } from "react";
 
 const links = [
@@ -20,7 +20,10 @@ export default function SiteHeader() {
       <nav className="desktop-nav" aria-label="メインナビゲーション">
         {links.map((link) => <Link key={link.name} href={link.href}>{link.name}</Link>)}
       </nav>
-      <button className="icon-button menu-toggle" aria-label="メニューを開く" title="メニュー" onClick={() => { dialog.current?.showModal(); document.body.style.overflow = "hidden"; }}><Menu size={23} /></button>
+      <div className="header-tools">
+        <a className="header-github github-profile-link" href="https://github.com/shu-wa" target="_blank" rel="noopener noreferrer" title="GitHubプロフィールを新しいタブで開く"><GitBranch size={19} aria-hidden="true" /><span>GitHub</span><ArrowUpRight size={14} aria-hidden="true" /></a>
+        <button className="icon-button menu-toggle" aria-label="メニューを開く" title="メニュー" onClick={() => { dialog.current?.showModal(); document.body.style.overflow = "hidden"; }}><Menu size={23} /></button>
+      </div>
     </header>
     <dialog ref={dialog} className="menu-dialog" onCancel={close} onClose={() => { document.body.style.overflow = ""; }}>
       <div className="menu-top"><span className="brand">ST<span className="brand-plus">+</span></span><button className="icon-button" aria-label="メニューを閉じる" onClick={close}><X /></button></div>

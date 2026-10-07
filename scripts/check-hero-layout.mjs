@@ -40,6 +40,12 @@ async function inspect(page, name) {
       return { width: box.width, height: box.height, top: box.top, bottom: box.bottom,
         clickable: button.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)) };
     });
+    const headerLinks = [...document.querySelectorAll(".site-header a,.site-header button")].map((element) => {
+      const box = element.getBoundingClientRect();
+      return { box: box.toJSON(), text: element.textContent,
+        clickable: element.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)) };
+    }).filter(({ box }) => box.width > 0);
+    const headerConflicts = headerLinks.flatMap((link, index) => headerLinks.slice(index + 1).filter((other) => intersects(link.box, other.box)).map((other) => `${link.text}/${other.text}`));
     const outOfDemo = [...document.querySelectorAll(".curiosity-demo button,.curiosity-demo input,.system-flow,.system-output,.sketch-status,.idea-list")].filter((element) => !element.closest(".idea-list") || element.classList.contains("idea-list")).filter((element) => {
       const box = element.getBoundingClientRect();
       return box.left < demo.left - 1 || box.right > demo.right + 1 || box.top < demo.top - 1 || box.bottom > demo.bottom + 1;
@@ -51,10 +57,12 @@ async function inspect(page, name) {
       for (const box of range.getClientRects()) if (box.left < copy.left - 4 || box.right > copy.right + 4) textOverflow.push(node.textContent);
     }
     return { width: innerWidth, height: innerHeight, documentWidth: document.documentElement.scrollWidth,
-      hero, controls, footer, stage, copy, conflicts, buttons, outOfDemo, textOverflow,
+      hero, controls, footer, stage, copy, conflicts, buttons, headerLinks, headerConflicts, outOfDemo, textOverflow,
       headerBottom: rect(".site-header").bottom, introTop: rect(".hero-intro").top };
   });
   assert.deepEqual(layout.conflicts, [], `${name}: controls overlap ${JSON.stringify(layout)}`);
+  assert.deepEqual(layout.headerConflicts, [], `${name}: header links overlap`);
+  assert(layout.headerLinks.every(({ box, clickable }) => box.left >= 0 && box.right <= layout.width && clickable), `${name}: header links must fit and be clickable`);
   assert(layout.controls.bottom + 8 <= layout.footer.top, `${name}: footer clearance`);
   assert(layout.controls.bottom <= layout.hero.bottom, `${name}: clipped controls`);
   assert(layout.hero.bottom <= layout.height - 8, `${name}: next-section hint must remain visible`);
