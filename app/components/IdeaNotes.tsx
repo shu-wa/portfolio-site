@@ -86,7 +86,7 @@ export default function IdeaNotes() {
   }
 
   return <div className="idea-notes demo-surface">
-    <div className="sketch-app-header"><span><AppWindow size={16} aria-hidden="true" />アイデアメモ</span><span>このブラウザに保存</span></div>
+    <div className="sketch-app-header"><span><AppWindow size={16} aria-hidden="true" />アイデアメモ</span><span>ブラウザに保存</span></div>
     <form className="idea-form" onSubmit={add}>
       <label className="sr-only" htmlFor="idea-note-title">つくりたいこと</label>
       <input id="idea-note-title" value={title} maxLength={48} placeholder="つくってみたいもの" autoComplete="off" onChange={(event) => setTitle(event.target.value)} />

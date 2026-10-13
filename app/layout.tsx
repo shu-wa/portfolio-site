@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://main.d217a718xi2gst.amplifyapp.com"),
   title: { default: "玉木秀杷 | とりあえずなんでもやってみる！！", template: "%s | Shuwa Tamaki" },
-  description: "気になる。その気持ちが、はじまり。AIとともにアプリ・ゲーム・Webをつくる玉木秀杷のポートフォリオ。",
-  openGraph: { title: "Shuwa Tamaki | Try Everything", description: "好奇心を、制作物に。", images: ["/curiosity-workbench.webp"], locale: "ja_JP", type: "website" },
+  description: "玉木秀杷のポートフォリオ。アプリ、ゲーム、Web、業務システムの制作物を掲載しています。",
+  openGraph: { title: "玉木秀杷 | ポートフォリオ", description: "アプリ、ゲーム、Web、業務システムの制作物。", images: [{ url: "/profile.jpg", width: 1108, height: 1477, alt: "玉木秀杷" }], locale: "ja_JP", type: "website" },
 };
 
 export default async function RootLayout({

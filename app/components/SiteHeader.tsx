@@ -5,10 +5,10 @@ import { ArrowUpRight, GitBranch, Menu, X } from "lucide-react";
 import { useRef } from "react";
 
 const links = [
-  { name: "制作物一覧", en: "Works", href: "/#projects" },
-  { name: "私の強み", en: "Strengths", href: "/#mindset" },
-  { name: "プロフィール", en: "Profile", href: "/#about" },
-  { name: "お問い合わせ", en: "Contact", href: "/#contact" },
+  { name: "制作物一覧", href: "/#projects" },
+  { name: "私の強み", href: "/#mindset" },
+  { name: "プロフィール", href: "/#about" },
+  { name: "お問い合わせ", href: "/#contact" },
 ];
 
 export default function SiteHeader() {
@@ -27,8 +27,7 @@ export default function SiteHeader() {
     </header>
     <dialog ref={dialog} className="menu-dialog" onCancel={close} onClose={() => { document.body.style.overflow = ""; }}>
       <div className="menu-top"><span className="brand">ST<span className="brand-plus">+</span></span><button className="icon-button" aria-label="メニューを閉じる" onClick={close}><X /></button></div>
-      <nav aria-label="モバイルナビゲーション">{links.map((link, index) => <Link key={link.name} href={link.href} onClick={close}><span className="mono">0{index + 1}</span><span>{link.name}<small>{link.en}</small></span><ArrowUpRight /></Link>)}</nav>
-      <p className="mono">CURIOUS BY NATURE. MAKER BY CHOICE.</p>
+      <nav aria-label="モバイルナビゲーション">{links.map((link) => <Link key={link.name} href={link.href} onClick={close}><span>{link.name}</span><ArrowUpRight aria-hidden="true" /></Link>)}</nav>
     </dialog>
   </>;
 }

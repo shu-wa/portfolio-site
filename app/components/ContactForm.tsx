@@ -22,10 +22,10 @@ export default function ContactForm() {
     finally { busy.current = false; setSending(false); }
   }
   return <form onSubmit={submit} className="contact-form">
-    <div className="contact-fields"><label>お名前 <span>NAME</span><input name="name" required maxLength={100} autoComplete="name" placeholder="玉木 秀杷" /></label><label>メールアドレス <span>EMAIL</span><input name="email" type="email" required maxLength={254} autoComplete="email" placeholder="hello@example.com" /></label></div>
-    <label>メッセージ <span>MESSAGE</span><textarea name="message" required maxLength={5000} rows={4} placeholder="気になること、つくりたいこと、話してみたいこと。" /></label>
+    <div className="contact-fields"><label>お名前<input name="name" required maxLength={100} autoComplete="name" /></label><label>メールアドレス<input name="email" type="email" required maxLength={254} autoComplete="email" /></label></div>
+    <label>メッセージ<textarea name="message" required maxLength={5000} rows={4} /></label>
     <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
-    <div className="contact-actions"><small>ご入力いただいた情報は、ご連絡への返信に使用します。</small><button type="submit" disabled={sending} className="action-link">{sending ? "送信中" : "メッセージを送る"}{sending ? <Loader2 className="spin" size={20} /> : <ArrowUpRight size={20} />}</button></div>
+    <div className="contact-actions"><small>ご入力いただいた情報は、ご連絡への返信に使用します。</small><button type="submit" disabled={sending} className="action-link">{sending ? "送信中" : "送信する"}{sending ? <Loader2 className="spin" size={20} /> : <ArrowUpRight size={20} />}</button></div>
     <p className="form-status" role="status" aria-live="polite">{status}</p>
   </form>;
 }

@@ -18,9 +18,9 @@ export function safeUrl(value: unknown, local = false): string {
 export const tsudowaPublic: Project = {
   slug: "tsudowa",
   title: "TSUDOWA",
-  description: "集まる前も、集まった後も。イベントの連絡・予定・参加者・費用の記録をひとつに。",
-  overview: "イベントのたびにグループをつくり、日時や場所を何度も送り直す。その小さな手間を減らしたくて、TSUDOWAをつくりました。招待コードでイベント単位につながり、当日の予定や会話、共有費用をまとめて確認できます。終了後の思い出を残し、同じメンバーで次のイベントへ。iOS / Androidアプリとして一般公開に向けて準備しています。",
-  tech: ["iOS / Android", "モバイルアプリ", "プロダクト開発"],
+  description: "イベントの予定、連絡、出欠、費用をまとめるアプリ。",
+  overview: "イベントのたびにグループをつくり、日時や場所を送り直す手間を減らすために制作しました。招待コードで参加し、予定・連絡・共有費用をイベントごとに確認できます。",
+  tech: ["iOS / Android"],
   features: [
     "招待コードで、友だち登録をせずにイベントへ参加。",
     "日時・集合場所・当日の予定をひとつに整理。",
@@ -32,8 +32,8 @@ export const tsudowaPublic: Project = {
   screenshotUrls: ["/do-eventer-demo.png", "/do-eventer-demo2.png", "/do-eventer-demo3.png"],
   designDecisions: [],
   problems: [],
-  learnings: ["身近な不便から出発し、企画・体験設計・開発・公開準備まで、一つのプロダクトを育てています。"],
-  future: ["一般公開に向けて、使いやすさと動作の確認を進めています。"],
+  learnings: [],
+  future: [],
   order: 1,
 };
 

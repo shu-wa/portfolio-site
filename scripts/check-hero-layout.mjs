@@ -7,6 +7,7 @@ import AxeBuilder from "@axe-core/playwright";
 const base = process.env.TEST_BASE_URL ?? "http://localhost:3100";
 const output = path.resolve(".artifacts/hero-layout");
 const selectedCase = process.env.TEST_HERO_CASE;
+const selectedNames = selectedCase?.split(",").map((name) => name.trim());
 const cases = [
   { width: 1920, height: 1080 }, { width: 1440, height: 1000 },
   { width: 1920, height: 800 }, { width: 1366, height: 768 },
@@ -17,7 +18,7 @@ const cases = [
   { width: 1280, height: 600, scale: 1.5 },
   { width: 960, height: 450, scale: 2 },
   { width: 390, height: 844 }, { width: 320, height: 740 }, { width: 375, height: 667 },
-].filter(({ width, height, scale = 1 }) => !selectedCase || selectedCase === `${width}x${height}-${scale}`);
+].filter(({ width, height, scale = 1 }) => !selectedNames || selectedNames.includes(`${width}x${height}-${scale}`));
 assert(cases.length > 0, "TEST_HERO_CASE must match a supported layout case");
 const modes = [
   { id: "app", label: "アプリを作る", surface: ".idea-notes" },
@@ -58,7 +59,8 @@ async function inspect(page, name) {
     }
     return { width: innerWidth, height: innerHeight, documentWidth: document.documentElement.scrollWidth,
       hero, controls, footer, stage, copy, conflicts, buttons, headerLinks, headerConflicts, outOfDemo, textOverflow,
-      headerBottom: rect(".site-header").bottom, introTop: rect(".hero-intro").top };
+      headerBottom: rect(".site-header").bottom, introTop: rect(".hero-intro").top,
+      nextHeading: rect(".works-section h2") };
   });
   assert.deepEqual(layout.conflicts, [], `${name}: controls overlap ${JSON.stringify(layout)}`);
   assert.deepEqual(layout.headerConflicts, [], `${name}: header links overlap`);
@@ -66,6 +68,7 @@ async function inspect(page, name) {
   assert(layout.controls.bottom + 8 <= layout.footer.top, `${name}: footer clearance`);
   assert(layout.controls.bottom <= layout.hero.bottom, `${name}: clipped controls`);
   assert(layout.hero.bottom <= layout.height - 8, `${name}: next-section hint must remain visible`);
+  assert(layout.nextHeading.top + Math.min(24, layout.nextHeading.height) <= layout.height, `${name}: the next section's content must be visible, not just blank padding`);
   assert(layout.introTop >= layout.headerBottom + 5, `${name}: header must not overlap intro`);
   assert(layout.stage.bottom <= layout.footer.top, `${name}: demo/footer overlap`);
   if (layout.width > 760) assert(layout.copy.right < layout.stage.left, `${name}: demo/copy overlap`);
@@ -121,7 +124,7 @@ try {
     await context.close();
     console.log(`PASS hero layout ${name}`);
   }
-  if (!selectedCase) for (const [width, height] of [[1366, 768], [1280, 720], [960, 450]]) {
+  for (const [width, height] of [[1366, 768], [1280, 720], [960, 450]].filter(([width, height]) => !selectedNames || cases.some((item) => item.width === width && item.height === height))) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "no-preference" });
     const page = await context.newPage();
     await page.clock.install();

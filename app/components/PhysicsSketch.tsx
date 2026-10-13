@@ -6,14 +6,13 @@ import { useEffect, useRef, useState } from "react";
 
 const width = 480;
 const height = 280;
-const labels = ["TRY", "?", "MAKE", "+", "CODE", "!", "PLAY", "AI"];
+const labels = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const colors = ["#c8f553", "#ed4b36", "#9ac6ed", "#e7b5d1"];
 
 export default function PhysicsSketch() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const controls = useRef<{ kick: () => void; flip: () => void; reset: () => void } | null>(null);
   const [reversed, setReversed] = useState(false);
-  const [actions, setActions] = useState(0);
   useEffect(() => {
     const element = canvas.current;
     const context = element?.getContext("2d");
@@ -97,5 +96,5 @@ export default function PhysicsSketch() {
       Composite.clear(engine.world, false); Engine.clear(engine); controls.current = null;
     };
   }, []);
-  return <div className="physics-sketch"><div className="physics-field"><canvas ref={canvas} className="physics-canvas" aria-hidden="true" /></div><div className="physics-controls"><span className="mono" role="status">{actions ? `${actions} EXPERIMENTS` : "PHYSICS / READY"}</span><div><button className="icon-button" title="パーツを跳ねさせる" aria-label="パーツを跳ねさせる" onClick={() => { controls.current?.kick(); setActions(actions + 1); }}><Sparkles size={18} /></button><button className="icon-button" title="重力を反転" aria-label="重力を反転" aria-pressed={reversed} onClick={() => { controls.current?.flip(); setReversed(!reversed); setActions(actions + 1); }}><ArrowUpDown size={18} /></button><button className="icon-button" title="パーツを元に戻す" aria-label="パーツを元に戻す" onClick={() => { controls.current?.reset(); setReversed(false); setActions(0); }}><RotateCcw size={18} /></button></div></div></div>;
+  return <div className="physics-sketch"><div className="physics-field"><canvas ref={canvas} className="physics-canvas" aria-hidden="true" /></div><div className="physics-controls"><span className="sr-only" role="status">{reversed ? "重力は上向き" : "重力は下向き"}</span><div><button className="icon-button" title="パーツを跳ねさせる" aria-label="パーツを跳ねさせる" onClick={() => controls.current?.kick()}><Sparkles size={18} /></button><button className="icon-button" title="重力を反転" aria-label="重力を反転" aria-pressed={reversed} onClick={() => { controls.current?.flip(); setReversed(!reversed); }}><ArrowUpDown size={18} /></button><button className="icon-button" title="パーツを元に戻す" aria-label="パーツを元に戻す" onClick={() => { controls.current?.reset(); setReversed(false); }}><RotateCcw size={18} /></button></div></div></div>;
 }

@@ -51,7 +51,6 @@ try {
     await page.screenshot({ path: path.join(output, `hero-${width}x${height}.png`) });
     const layout = await page.evaluate(() => ({
       viewport: innerWidth, document: document.documentElement.scrollWidth,
-      image: document.querySelector(".hero-image").naturalWidth,
       heroEnd: document.querySelector(".hero").getBoundingClientRect().bottom,
       shifts: window.layoutShifts,
       overflow: [...document.querySelectorAll("h1,h2,h3,button,input,textarea,.work-item")].filter((element) => {
@@ -59,11 +58,16 @@ try {
         return rect.width > 0 && (rect.right > innerWidth + 1 || rect.left < -1);
       }).map((element) => element.className || element.tagName),
     }));
-    assert(layout.image > 0, "hero asset must load");
     assert(layout.document <= layout.viewport + 1, `horizontal overflow at ${width}: ${JSON.stringify(layout)}`);
     assert.deepEqual(layout.overflow, [], `text/control overflow at ${width}`);
     assert(layout.heroEnd < height, `next section must be visible at ${width}`);
-    assert((await page.locator(".hero-bottom").textContent()).includes("玉木秀杷のポートフォリオです"));
+    assert.equal((await page.locator(".hero-intro").textContent()).trim(), "玉木 秀杷");
+    assert((await page.locator(".hero-bottom").textContent()).includes("芝浦工業大学"));
+    assert.equal(await page.locator('.hero a[href="#projects"]').count(), 1, "one clear works entrance is sufficient");
+    assert.equal(await page.locator(".hero-image,.ticker,.curiosity-caption,.terminal-preview,.puzzle-tiles,.principles").count(), 0, "decorative filler must stay removed");
+    const homeText = await page.locator("main").textContent();
+    for (const filler of ["INTERACTIVE SKETCH", "FROM IDEA TO SYSTEM", "好奇心を、動くものに。", "NEW CONNECTIONS, NEW POSSIBILITIES."]) assert(!homeText.includes(filler), `redundant copy must stay removed: ${filler}`);
+    assert((await page.locator(".about-copy").textContent()).includes("AIも使いながら"), "editing style must not conceal AI use");
     assert.equal(await page.getByRole("heading", { name: "制作物一覧", exact: true }).count(), 1);
     assert.equal(await page.getByRole("heading", { name: "お問い合わせ", exact: true }).count(), 1);
     assert.equal(await page.getByRole("link", { name: "管理者ログイン", exact: true }).getAttribute("href"), "/admin");
@@ -183,6 +187,8 @@ try {
     }), "hero link must navigate to works");
     const originalCount = await page.locator(".work-item").count();
     const originalOrder = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    const evidenceLinks = await page.locator(".evidence-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    assert(evidenceLinks.length > 0 && evidenceLinks.every((href) => originalOrder.includes(href)), "strengths must link to existing project evidence");
     for (const category of ["アプリ・Web", "ゲーム", "システム"]) {
       await page.getByRole("button", { name: category, exact: true }).click();
       assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true");
@@ -195,19 +201,17 @@ try {
         assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true");
         assert.deepEqual(await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href"))), filteredOrder, "hero modes must preserve selected category and order");
       }
-      await page.getByRole("link", { name: "制作物一覧へ", exact: true }).click();
-      assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true", "hero works link must preserve the selected category");
       await page.getByRole("link", { name: "制作物を見る", exact: true }).click();
       assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true");
     }
     await page.getByRole("button", { name: "すべて", exact: true }).click();
     assert.equal(await page.locator(".work-item").count(), originalCount);
     assert.deepEqual(await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href"))), originalOrder, "returning to all works must restore the original order");
-    assert(await page.locator(".phone-screen").evaluate((image) => {
+    assert(await page.locator(".phone-screen").evaluateAll((images) => images.every((image) => {
       const frame = image.parentElement.getBoundingClientRect();
       const rect = image.getBoundingClientRect();
-      return rect.left >= frame.left && rect.right <= frame.right && rect.top >= frame.top && rect.bottom <= frame.bottom;
-    }), `phone screenshot must not be clipped at ${width}`);
+      return rect.width === 0 || (rect.left >= frame.left && rect.right <= frame.right && rect.top >= frame.top && rect.bottom <= frame.bottom && Math.abs(rect.width / rect.height - image.naturalWidth / image.naturalHeight) < 0.015);
+    })), `phone screenshots must not be clipped or distorted at ${width}`);
     await page.locator("#projects").scrollIntoViewIfNeeded();
     await page.screenshot({ path: path.join(output, `works-${width}.png`) });
     if (width <= 760) {
@@ -219,7 +223,8 @@ try {
         return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
       });
       assert(topmost, "menu must render above all work visuals");
-      assert.deepEqual(await page.locator("dialog nav a > span:nth-child(2)").evaluateAll((elements) => elements.map((element) => element.childNodes[0].textContent)), ["制作物一覧", "私の強み", "プロフィール", "お問い合わせ"]);
+      assert.deepEqual(await page.locator("dialog nav a > span").allTextContents(), ["制作物一覧", "私の強み", "プロフィール", "お問い合わせ"]);
+      assert.equal(await page.locator("dialog nav small").count(), 0, "translated duplicates are unnecessary");
       assert(await page.locator("dialog nav a").evaluateAll((elements) => elements.every((element) => element.scrollWidth <= element.clientWidth)), `menu text must fit at ${width}`);
       const menuAccessibility = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
       assert.deepEqual(menuAccessibility.violations.map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) })), [], `menu accessibility at ${width}`);
