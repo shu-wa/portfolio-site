@@ -7,6 +7,7 @@ import SiteHeader from "../../components/SiteHeader";
 import { getStoredProject } from "../../../lib/projects";
 import { isTsudowa, toPublicProject } from "../../../lib/project-public";
 import { validSlug } from "../../../lib/project-input";
+import { restaurantContribution } from "../../../data/profile";
 
 type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -25,6 +26,7 @@ export default async function ProjectDetail({ params }: Props) {
   if (!stored) notFound();
   const project = toPublicProject(stored);
   const product = isTsudowa(project);
+  const contribution = project.slug === restaurantContribution.slug ? restaurantContribution : null;
   const sections = [
     { title: "主な機能", items: project.features },
     { title: "修正した点", items: project.problems },
@@ -41,6 +43,11 @@ export default async function ProjectDetail({ params }: Props) {
       {links.length > 0 && <div className="detail-links">{links.map((link) => <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer" className="action-link">{link.label}<ArrowUpRight size={18} /></a>)}</div>}
     </section>
     <div className="section-pad" style={{ paddingTop: 0 }}>
+      {contribution && <section className="project-contribution" aria-labelledby="contribution-title"><h2 id="contribution-title">制作体制・担当</h2><dl>{[
+        { label: "制作形式", value: contribution.format },
+        { label: "制作期間", value: contribution.duration },
+        { label: "担当", value: contribution.role },
+      ].map(({ label, value }) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p>{contribution.coordination}</p></section>}
       {project.overview && <section className="detail-overview"><h2>概要</h2><p>{project.overview}</p></section>}
       {(project.screenshotUrls?.length || project.demoVideoUrl) ? <section className="detail-section"><h2>画面</h2>
         {project.demoVideoUrl && (embed ? <iframe className="detail-video" src={embed} title={`${project.title} デモ映像`} allow="fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /> : <video className="detail-video" src={project.demoVideoUrl} controls preload="metadata" />)}

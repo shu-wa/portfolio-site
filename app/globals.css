@@ -89,6 +89,11 @@ button, input, textarea { border-radius: 0; }
 .about-copy h3 { font-size: 34px; font-weight: 700; margin-bottom: 25px; }
 .about-copy h3 span { display: block; font-size: 15px; font-weight: 500; margin-top: 9px; }
 .about-copy > p { font-size: 13px; line-height: 2.15; color: var(--muted); margin-bottom: 19px; }
+.about-copy h4 { font-size: 14px; font-weight: 700; margin: 26px 0 10px; }
+.profile-facts { margin: 26px 0; font-size: 12px; line-height: 1.9; }
+.profile-facts > div { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+.profile-facts dt { font-weight: 600; }
+.profile-facts dd { margin: 0; color: var(--muted); overflow-wrap: anywhere; }
 .profile-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
 .profile-links .action-link { gap: 12px; padding-inline: 20px; max-width: 100%; }
 .profile-links svg { flex-shrink: 0; }
@@ -122,6 +127,13 @@ button, input, textarea { border-radius: 0; }
 .detail-title { max-width: 1000px; font-size: 64px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; margin: 24px 0; }
 .detail-description { max-width: 700px; font-size: 17px; line-height: 2; color: var(--muted); }
 .detail-links { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 26px; }
+.project-contribution { border-top: 1px solid var(--line); padding-top: 32px; margin-bottom: 48px; }
+.project-contribution h2 { font-size: 28px; font-weight: 700; }
+.project-contribution dl { margin: 20px 0; }
+.project-contribution dl > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 20px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.project-contribution dt { font-size: 12px; color: var(--muted); }
+.project-contribution dd { margin: 0; font-size: 14px; line-height: 2; overflow-wrap: anywhere; }
+.project-contribution > p { font-size: 14px; line-height: 2.1; }
 .detail-overview { display: grid; grid-template-columns: 260px 1fr; gap: 6%; border-top: 1px solid var(--line); padding-top: 36px; }
 .detail-overview h2, .detail-section h2 { font-size: 28px; font-weight: 700; }
 .detail-overview p { font-size: 15px; line-height: 2.2; }
@@ -196,6 +208,8 @@ button, input, textarea { border-radius: 0; }
   .detail-title { font-size: 38px; }
   .detail-description { font-size: 14px; }
   .detail-overview { grid-template-columns: 1fr; gap: 22px; }
+  .project-contribution h2 { font-size: 24px; }
+  .project-contribution dl > div { grid-template-columns: 80px minmax(0, 1fr); gap: 14px; }
   .detail-overview p { font-size: 14px; }
   .detail-section { margin-top: 42px; }
   .detail-section h2 { font-size: 24px; }
