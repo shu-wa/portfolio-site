@@ -10,9 +10,11 @@ export default function AboutSection() {
       <div className="about-copy" data-reveal>
         <h3>玉木 秀杷<span>Shuwa Tamaki</span></h3>
         <p>芝浦工業大学 デザイン工学部で、ロボティクス・情報デザインを学んでいます。AIも使いながら、アプリやゲームを制作しています。</p>
+        <p>{profileDetails.motivation}</p>
         <p>{profileDetails.aspiration}</p>
         <p>サッカー歴は12年。ギターは大学から始めました。</p>
         <dl className="profile-facts">{[
+          { label: "資格", value: profileDetails.qualification },
           { label: "関心", value: profileDetails.interests },
           { label: "開発経験", value: profileDetails.webExperience },
           { label: "UX調査", value: profileDetails.uxMethods },

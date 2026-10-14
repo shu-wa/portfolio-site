@@ -9,7 +9,7 @@ const base = process.env.TEST_BASE_URL ?? "http://localhost:3100";
 const output = path.resolve(".artifacts/profile");
 const source = await readFile("data/profile.ts", "utf8");
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
-const { profileDetails, restaurantContribution } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`);
+const { profileDetails, personalStrengths, restaurantContribution } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`);
 assert(!source.includes("chatgpt.com/share/"), "private source conversations must not be published");
 await mkdir(output, { recursive: true });
 
@@ -54,13 +54,21 @@ try {
     await page.evaluate(() => document.fonts.ready);
     const profileText = await page.locator(".about-copy").textContent();
     for (const value of Object.values(profileDetails)) assert(profileText.includes(value), `missing profile fact at ${width}`);
-    assert.deepEqual(await page.locator(".profile-facts dt").allTextContents(), ["関心", "開発経験", "UX調査"]);
-    const projectLink = page.locator(`.evidence-link[href="/projects/${restaurantContribution.slug}"]`);
-    assert((await projectLink.textContent()).includes(restaurantContribution.summary));
+    assert.deepEqual(await page.locator(".profile-facts dt").allTextContents(), ["資格", "関心", "開発経験", "UX調査"]);
+    assert.equal(await page.locator('.profile-facts dd').first().textContent(), "基本情報技術者試験 合格");
+    assert.equal(await page.locator('#mindset a,.evidence-link,.evidence-list').count(), 0, "strengths must not repeat project links");
+    assert.deepEqual(await page.locator(".strength-item h3").allTextContents(), personalStrengths.map(({ title }) => title));
+    assert.deepEqual(await page.locator(".strength-item p").allTextContents(), personalStrengths.map(({ description }) => description));
     assert((await page.locator(".hero h1").textContent()).includes("やってみる"), "the curiosity concept must remain");
+    assert(await page.locator(".work-link").count() > 0, "the works list must remain separate");
+    await page.locator("#mindset").scrollIntoViewIfNeeded();
+    await checkLayout(page, "#mindset", width);
+    await page.locator("#mindset").screenshot({ path: path.join(output, `strengths-${width}.png`) });
     await page.locator("#about").scrollIntoViewIfNeeded();
     await checkLayout(page, ".about-copy", width);
     await checkAccessibility(page, `home accessibility at ${width}`);
+    await page.locator(".about-copy").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: path.join(output, `about-viewport-${width}.png`) });
     await page.locator("#about").screenshot({ path: path.join(output, `about-${width}.png`) });
 
     const detail = await page.goto(`${base}/projects/${restaurantContribution.slug}`, { waitUntil: "networkidle" });
@@ -86,7 +94,7 @@ try {
     assert.equal(await page.locator('main a[href*="github.com"]').count(), 0);
     assert.deepEqual(errors, [], `runtime errors at ${width}`);
     assert.deepEqual(violations, [], `CSP violations at ${width}`);
-    results.push({ width, height, profile: "passed", contribution: "passed", privacy: "passed", accessibility: "passed" });
+    results.push({ width, height, strengths: "passed", profile: "passed", contribution: "passed", privacy: "passed", accessibility: "passed" });
     await context.close();
   }
   await writeFile(path.join(output, "results.json"), `${JSON.stringify(results, null, 2)}\n`);

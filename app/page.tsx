@@ -7,16 +7,10 @@ import SiteHeader from "./components/SiteHeader";
 import PortfolioMotion from "./components/PortfolioMotion";
 import CuriosityHero from "./components/CuriosityHero";
 import { getPublicProjects } from "../lib/projects";
-import { isTsudowa } from "../lib/project-public";
-import { restaurantContribution } from "../data/profile";
+import { personalStrengths } from "../data/profile";
 
 export default async function Home() {
   const projects = await getPublicProjects();
-  const examples = [
-    { project: projects.find(isTsudowa), text: "イベントの招待、予定、連絡をまとめるアプリ。" },
-    { project: projects.find((project) => project.slug === "minesweeper-rpg"), text: "マインスイーパーにHPと敵の攻撃を組み合わせたゲーム。" },
-    { project: projects.find((project) => project.slug === restaurantContribution.slug), text: restaurantContribution.summary },
-  ].flatMap(({ project, text }) => project ? [{ project, text }] : []);
   return <>
     <SiteHeader /><PortfolioMotion />
     <main id="main-content">
@@ -27,8 +21,8 @@ export default async function Home() {
       </section>
       <section id="mindset" className="mindset-section section-pad">
         <div className="mindset-grid">
-          <div className="mindset-statement" data-reveal><h2>私の強み</h2><p>作るだけでなく、チームが進めやすい土台を整えること。<br />個人開発、4人でのシステム制作、アルバイトの育成体制づくりに取り組んできました。</p></div>
-          <div className="evidence-list">{examples.map(({ project, text }) => <Link className="evidence-link" key={project.slug} href={`/projects/${encodeURIComponent(project.slug)}`}><div><h3>{project.title}</h3><p>{text}</p></div><ArrowUpRight size={22} aria-hidden="true" /></Link>)}</div>
+          <div className="mindset-statement" data-reveal><h2>私の強み</h2></div>
+          <div className="strength-list">{personalStrengths.map(({ title, description }) => <article className="strength-item" key={title} data-reveal><h3>{title}</h3><p>{description}</p></article>)}</div>
         </div>
       </section>
       <AboutSection />

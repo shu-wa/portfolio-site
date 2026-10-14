@@ -187,8 +187,8 @@ try {
     }), "hero link must navigate to works");
     const originalCount = await page.locator(".work-item").count();
     const originalOrder = await page.locator(".work-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
-    const evidenceLinks = await page.locator(".evidence-link").evaluateAll((links) => links.map((link) => link.getAttribute("href")));
-    assert(evidenceLinks.length > 0 && evidenceLinks.every((href) => originalOrder.includes(href)), "strengths must link to existing project evidence");
+    assert.equal(await page.locator("#mindset a,.evidence-link,.evidence-list").count(), 0, "strengths must not duplicate the works list");
+    assert.equal(await page.locator(".strength-item").count(), 3, "strengths must describe the person's approach");
     for (const category of ["アプリ・Web", "ゲーム", "システム"]) {
       await page.getByRole("button", { name: category, exact: true }).click();
       assert.equal(await page.getByRole("button", { name: category, exact: true }).getAttribute("aria-pressed"), "true");
