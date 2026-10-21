@@ -3,6 +3,7 @@ import { projects as fallback } from "../data/projects";
 import type { Project } from "../types/project";
 import { db, projectTable } from "./db";
 import { publicProjectList, tsudowaPublic } from "./project-public";
+import todoEventCalendar from "../data/todo-event-calendar.json";
 
 export async function getStoredProjects(fallbackOnError = true): Promise<Project[]> {
   try {
@@ -22,7 +23,10 @@ export async function getStoredProjects(fallbackOnError = true): Promise<Project
 }
 
 export async function getPublicProjects() {
-  return publicProjectList(await getStoredProjects());
+  const stored = await getStoredProjects();
+  // The source-managed work is visible until its JSON is imported into the admin store.
+  const projects = stored.some((project) => project.slug === todoEventCalendar.slug) ? stored : [...stored, todoEventCalendar];
+  return publicProjectList(projects);
 }
 
 export async function getStoredProject(slug: string): Promise<Project | null> {

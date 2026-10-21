@@ -1,6 +1,8 @@
 import type { Project } from "../types/project";
+import todoEventCalendar from "./todo-event-calendar.json";
 
 export const projects:Project[] = [
+  todoEventCalendar,
   {
     slug: "restaurant-order-system",
     title: "飲食店注文・在庫管理システム",

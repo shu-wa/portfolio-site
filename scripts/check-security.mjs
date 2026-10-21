@@ -19,8 +19,12 @@ function load(relative) {
   if (cache.has(filename)) return cache.get(filename).exports;
   const compiled = { exports: {} };
   cache.set(filename, compiled);
+  if (filename.endsWith(".json")) {
+    compiled.exports = JSON.parse(readFileSync(filename, "utf8"));
+    return compiled.exports;
+  }
   const source = ts.transpileModule(readFileSync(filename, "utf8"), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
   }).outputText;
   const localRequire = (id) => {
     if (id === "aws-jwt-verify") return { CognitoJwtVerifier: { create: () => ({ verify: async () => {
@@ -28,7 +32,7 @@ function load(relative) {
       return claims;
     } }) } };
     if (id.startsWith(".")) {
-      const target = path.resolve(path.dirname(filename), id) + ".ts";
+      const target = path.resolve(path.dirname(filename), id) + (path.extname(id) ? "" : ".ts");
       if (target === path.join(root, "lib/db.ts")) return {
         db: { send: async (command) => { calls.push(command); return send(command); } },
         projectTable: "Projects", contactTable: "Contacts",
@@ -140,6 +144,28 @@ await checkAsync("Admin database failures never return editable fallback data", 
   await assert.rejects(load("lib/projects.ts").getStoredProjects(false));
   send = async () => ({ Items: [] });
   assert.deepEqual(await load("lib/projects.ts").getStoredProjects(false), []);
+});
+await checkAsync("Source-managed work augments the public list without resurrecting old fallback works", async () => {
+  send = async () => ({ Items: [project] });
+  const result = await load("lib/projects.ts").getPublicProjects();
+  assert.deepEqual(result.map((item) => item.slug).sort(), ["sample", "todo-event-calendar", "tsudowa"]);
+  const added = result.find((item) => item.slug === "todo-event-calendar");
+  assert.equal(added.githubUrl, "https://github.com/shu-wa/todo-event-calendar");
+  assert.equal(parseProject(added).slug, added.slug);
+});
+await checkAsync("Stored work overrides the source-managed work without duplicates", async () => {
+  const stored = { ...project, slug: "todo-event-calendar", title: "Edited in admin" };
+  send = async () => ({ Items: [stored] });
+  const result = await load("lib/projects.ts").getPublicProjects();
+  assert.equal(result.filter((item) => item.slug === stored.slug).length, 1);
+  assert.equal(result.find((item) => item.slug === stored.slug).title, stored.title);
+  assert.deepEqual(await load("lib/projects.ts").getStoredProjects(false), [stored]);
+});
+await checkAsync("Source-managed work detail is available when the database has no item", async () => {
+  send = async () => ({});
+  const result = await load("lib/projects.ts").getStoredProject("todo-event-calendar");
+  assert.equal(result.slug, "todo-event-calendar");
+  assert(result.overview.includes("マージ・統合"));
 });
 await checkAsync("Public project API strips private TSUDOWA data", async () => {
   send = async () => ({ Items: [{ ...project, slug: "do-eventer", title: "TSUDOWA", overview: "PRIVATE_SENTINEL", githubUrl: "https://github.com/private/PRIVATE_SENTINEL" }] });

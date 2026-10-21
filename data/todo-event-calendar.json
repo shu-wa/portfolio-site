@@ -1,0 +1,19 @@
+{
+  "slug": "todo-event-calendar",
+  "title": "TODO・イベントカレンダー",
+  "description": "TODOと予定をまとめて確認するチーム制作のWebアプリ。TODO機能の実装と、成果物のマージ・統合を担当しました。",
+  "overview": "PC版とモバイル版を制作した、TODO・イベントカレンダーです。私の担当はTODO側の実装と、成果物のマージ・統合です。イベントカレンダーを含むアプリ全体はチームの制作物です。公開リポジトリにはWebPerformer-NXのアプリ定義を収録しており、再現には実行環境とデータベースの準備が必要です。",
+  "tech": ["WebPerformer-NX", "JavaScript", "SQL", "PC / Mobile"],
+  "githubUrl": "https://github.com/shu-wa/todo-event-calendar",
+  "features": [
+    "TODOの一覧表示と登録・編集・削除",
+    "TODOの期日と完了状態の管理",
+    "イベントのカレンダー表示と登録・更新・削除（チーム全体の機能）",
+    "PC向けとモバイル向けの画面定義"
+  ],
+  "designDecisions": [],
+  "problems": [],
+  "learnings": [],
+  "future": [],
+  "order": 2
+}
