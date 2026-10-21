@@ -29,6 +29,7 @@ try {
     const entries = projects.filter(({ slug }) => slug === project.slug);
     assert.equal(entries.length, 1, "new work must appear exactly once in the API");
     assert.equal(entries[0].githubUrl, project.githubUrl);
+    assert(entries[0].description.startsWith("インターンシップでチーム制作"));
     assert(entries[0].overview.includes("私の担当はTODO側の実装と、成果物のマージ・統合"));
     assert(!(await page.locator("#mindset").textContent()).includes(project.title), "strengths must not duplicate the work");
     await page.getByRole("button", { name: "アプリ・Web", exact: true }).click();
@@ -45,6 +46,7 @@ try {
     assert.equal(await page.getByRole("heading", { level: 1, name: project.title, exact: true }).count(), 1);
     const main = await page.locator("main").textContent();
     assert(main.includes(project.overview));
+    assert(entries[0].overview.startsWith("インターンシップでチーム制作"));
     for (const feature of project.features) assert(main.includes(feature));
     assert(main.includes("アプリ全体はチームの制作物"), "team authorship must be clear");
     assert.equal(await page.getByRole("heading", { name: "画面", exact: true }).count(), 0);
