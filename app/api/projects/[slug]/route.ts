@@ -1,7 +1,6 @@
 import { DeleteCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { db, projectTable } from "../../../../lib/db";
-import { getStoredProject } from "../../../../lib/projects";
-import { toPublicProject } from "../../../../lib/project-public";
+import { getPublicProject, getStoredProject } from "../../../../lib/projects";
 import { parseProject, validSlug } from "../../../../lib/project-input";
 import { apiError, HttpError, readJson, requireAdmin, requireSameOrigin } from "../../../../lib/security";
 
@@ -11,9 +10,9 @@ export async function GET(_request: Request, { params }: Context) {
   try {
     const { slug } = await params;
     if (!validSlug(slug)) throw new HttpError(404, "作品が見つかりません。");
-    const project = await getStoredProject(slug);
+    const project = await getPublicProject(slug);
     if (!project) throw new HttpError(404, "作品が見つかりません。");
-    return Response.json(toPublicProject(project), { headers: { "Cache-Control": "no-store" } });
+    return Response.json(project, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return apiError(error); }
 }
 export async function PUT(request: Request, { params }: Context) {

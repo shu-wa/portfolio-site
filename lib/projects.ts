@@ -2,8 +2,9 @@ import { GetCommand, ScanCommand, type ScanCommandOutput } from "@aws-sdk/lib-dy
 import { projects as fallback } from "../data/projects";
 import type { Project } from "../types/project";
 import { db, projectTable } from "./db";
-import { publicProjectList, tsudowaPublic } from "./project-public";
+import { publicProjectList, toPublicProject, tsudowaPublic } from "./project-public";
 import todoEventCalendar from "../data/todo-event-calendar.json";
+import { currentRestaurantPublication, restaurantPublication } from "./restaurant-publication";
 
 export async function getStoredProjects(fallbackOnError = true): Promise<Project[]> {
   try {
@@ -24,9 +25,17 @@ export async function getStoredProjects(fallbackOnError = true): Promise<Project
 
 export async function getPublicProjects() {
   const stored = await getStoredProjects();
-  // The source-managed work is visible until its JSON is imported into the admin store.
-  const projects = stored.some((project) => project.slug === todoEventCalendar.slug) ? stored : [...stored, todoEventCalendar];
-  return publicProjectList(projects);
+  // Only explicitly published works supplement the stored catalog.
+  const projects = [...stored];
+  for (const source of [todoEventCalendar, restaurantPublication]) {
+    if (!projects.some((project) => project.slug === source.slug)) projects.push(source);
+  }
+  return publicProjectList(projects.map(currentRestaurantPublication));
+}
+
+export async function getPublicProject(slug: string): Promise<Project | null> {
+  const project = await getStoredProject(slug);
+  return project ? toPublicProject(currentRestaurantPublication(project)) : null;
 }
 
 export async function getStoredProject(slug: string): Promise<Project | null> {

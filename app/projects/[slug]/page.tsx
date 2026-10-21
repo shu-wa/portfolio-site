@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
 import SiteHeader from "../../components/SiteHeader";
-import { getStoredProject } from "../../../lib/projects";
-import { isTsudowa, toPublicProject } from "../../../lib/project-public";
+import { getPublicProject } from "../../../lib/projects";
+import { isTsudowa } from "../../../lib/project-public";
 import { validSlug } from "../../../lib/project-input";
 import { restaurantContribution } from "../../../data/profile";
 
@@ -13,23 +13,21 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   if (!validSlug(slug)) return { title: "Not Found" };
-  const stored = await getStoredProject(slug);
-  if (!stored) return { title: "Not Found" };
-  const project = toPublicProject(stored);
+  const project = await getPublicProject(slug);
+  if (!project) return { title: "Not Found" };
   return { title: project.title, description: project.description };
 }
 
 export default async function ProjectDetail({ params }: Props) {
   const { slug } = await params;
   if (!validSlug(slug)) notFound();
-  const stored = await getStoredProject(slug);
-  if (!stored) notFound();
-  const project = toPublicProject(stored);
+  const project = await getPublicProject(slug);
+  if (!project) notFound();
   const product = isTsudowa(project);
   const contribution = project.slug === restaurantContribution.slug ? restaurantContribution : null;
   const sections = [
     { title: "主な機能", items: project.features },
-    { title: "修正した点", items: project.problems },
+    { title: contribution ? "授業後の保守改修" : "修正した点", items: project.problems },
     { title: "学んだこと", items: project.learnings },
     { title: "今後", items: project.future },
   ];
@@ -49,12 +47,13 @@ export default async function ProjectDetail({ params }: Props) {
         { label: "担当", value: contribution.role },
       ].map(({ label, value }) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p>{contribution.coordination}</p></section>}
       {project.overview && <section className="detail-overview"><h2>概要</h2><p>{project.overview}</p></section>}
-      {(project.screenshotUrls?.length || project.demoVideoUrl) ? <section className="detail-section"><h2>画面</h2>
+      {(project.screenshotUrls?.length || project.demoVideoUrl) ? <section className="detail-section"><h2>{contribution ? "保守版の実行結果" : "画面"}</h2>
+        {contribution && <p>架空データを使った検索・注文と売上確認の実行結果です。</p>}
         {project.demoVideoUrl && (embed ? <iframe className="detail-video" src={embed} title={`${project.title} デモ映像`} allow="fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /> : <video className="detail-video" src={project.demoVideoUrl} controls preload="metadata" />)}
         <div className={`detail-media ${product ? "mobile-media" : ""}`}>{project.screenshotUrls?.map((url, index) => <a href={url} target="_blank" rel="noopener noreferrer" key={`${url}-${index}`} aria-label={`${project.title} 画面${index + 1}を原寸で開く`}><img src={url} alt={`${project.title}の画面 ${index + 1}`} width={product ? 1179 : undefined} height={product ? 2556 : undefined} loading="lazy" /></a>)}</div>
       </section> : null}
       {sections.filter((section) => section.items.length).map((section) => <section className="detail-section" key={section.title}><h2>{section.title}</h2><ul>{section.items.map((item, index) => <li key={index}>{item}</li>)}</ul></section>)}
-      {project.designDecisions.length > 0 && <section className="detail-section"><h2>設計の工夫</h2>{project.designDecisions.map((decision, index) => <article className="decision" key={index}><h3>{decision.title}</h3><dl>{[{ title: "何をしたか", text: decision.what }, { title: "なぜそうしたか", text: decision.why }, { title: "どう変わったか", text: decision.effect }].map((item) => <div key={item.title}><dt>{item.title}</dt><dd>{item.text}</dd></div>)}</dl></article>)}</section>}
+      {project.designDecisions.length > 0 && <section className="detail-section"><h2>{contribution ? "保守版の設計" : "設計の工夫"}</h2>{project.designDecisions.map((decision, index) => <article className="decision" key={index}><h3>{decision.title}</h3><dl>{[{ title: "何をしたか", text: decision.what }, { title: "なぜそうしたか", text: decision.why }, { title: "どう変わったか", text: decision.effect }].map((item) => <div key={item.title}><dt>{item.title}</dt><dd>{item.text}</dd></div>)}</dl></article>)}</section>}
     </div>
   </main><footer className="site-footer"><Link className="brand" href="/">ST<span className="brand-plus">+</span></Link><Link href="/#projects" className="mono">制作物一覧へ <ArrowUpRight size={16} /></Link></footer></>;
 }

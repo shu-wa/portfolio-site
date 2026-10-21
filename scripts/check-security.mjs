@@ -148,7 +148,7 @@ await checkAsync("Admin database failures never return editable fallback data", 
 await checkAsync("Source-managed work augments the public list without resurrecting old fallback works", async () => {
   send = async () => ({ Items: [project] });
   const result = await load("lib/projects.ts").getPublicProjects();
-  assert.deepEqual(result.map((item) => item.slug).sort(), ["sample", "todo-event-calendar", "tsudowa"]);
+  assert.deepEqual(result.map((item) => item.slug).sort(), ["restaurant-order-system", "sample", "todo-event-calendar", "tsudowa"]);
   const added = result.find((item) => item.slug === "todo-event-calendar");
   assert.equal(added.githubUrl, "https://github.com/shu-wa/todo-event-calendar");
   assert.equal(parseProject(added).slug, added.slug);
@@ -166,6 +166,38 @@ await checkAsync("Source-managed work detail is available when the database has 
   const result = await load("lib/projects.ts").getStoredProject("todo-event-calendar");
   assert.equal(result.slug, "todo-event-calendar");
   assert(result.overview.includes("マージ・統合"));
+});
+await checkAsync("Reviewed restaurant publication replaces stale public data but leaves admin data intact", async () => {
+  const stored = { ...project, slug: "restaurant-order-system", title: "Old version", order: 8, updatedAt: "2026-10-01T00:00:00Z" };
+  send = async (command) => command.input.Key ? { Item: stored } : { Items: [stored] };
+  const service = load("lib/projects.ts");
+  const detail = await service.getPublicProject(stored.slug);
+  assert.equal(detail.title, "飲食店注文・在庫管理システム");
+  assert.equal(detail.order, 8);
+  assert.equal(detail.githubUrl, "https://github.com/shu-wa/restaurant-order-system");
+  const list = await service.getPublicProjects();
+  assert.equal(list.filter((item) => item.slug === stored.slug).length, 1);
+  assert.deepEqual(list.find((item) => item.slug === stored.slug), detail);
+  assert.deepEqual(await service.getStoredProject(stored.slug), stored);
+  assert.deepEqual(await service.getStoredProjects(false), [stored]);
+});
+await checkAsync("A later admin edit takes precedence over the reviewed restaurant publication", async () => {
+  const stored = { ...project, slug: "restaurant-order-system", title: "Later admin edit", updatedAt: "2026-10-22T00:00:00Z" };
+  send = async (command) => command.input.Key ? { Item: stored } : { Items: [stored] };
+  const detail = await load("lib/projects.ts").getPublicProject(stored.slug);
+  assert.equal(detail.title, stored.title);
+  const list = await load("lib/projects.ts").getPublicProjects();
+  assert.equal(list.find((item) => item.slug === stored.slug).title, stored.title);
+});
+await checkAsync("Restaurant publication accepts missing or invalid old timestamps and valid import JSON", async () => {
+  const service = load("lib/projects.ts");
+  for (const updatedAt of [undefined, "invalid"]) {
+    send = async () => ({ Item: { ...project, slug: "restaurant-order-system", updatedAt } });
+    assert.equal((await service.getPublicProject("restaurant-order-system")).title, "飲食店注文・在庫管理システム");
+  }
+  const source = load("data/restaurant-order-system.json");
+  assert.equal(parseProject(source).githubUrl, source.githubUrl);
+  assert.equal(parseProject(source).screenshotUrls.length, 2);
 });
 await checkAsync("Public project API strips private TSUDOWA data", async () => {
   send = async () => ({ Items: [{ ...project, slug: "do-eventer", title: "TSUDOWA", overview: "PRIVATE_SENTINEL", githubUrl: "https://github.com/private/PRIVATE_SENTINEL" }] });

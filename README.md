@@ -107,6 +107,10 @@ AmplifyのCompute roleにDynamoDBへの書き込み・読み取り権限を付�
 
 JavaとMySQLを用いて、店舗選択、メニュー検索、注文、在庫管理、売上確認を行えるCLIシステムを作成しました。
 
+大学の4人チーム制作で、設計・検索機能・統合を担当しました。公開コードは授業後の保守版です。ソースは https://github.com/shu-wa/restaurant-order-system 、紹介用JSONは `data/restaurant-order-system.json` にあります。実行結果の画像は `public/images/restaurant-order-system/` に置いています。
+
+この作品はJSONの `updatedAt` を公開改訂日時として扱います。DB側が古い、または日時がない場合は確認済みのJSONを公開し、それ以降に管理画面から更新した作品はDB側を優先します。一覧・詳細・公開APIは同じ判定を使用し、管理APIで取得する原データは変更しません。掲載を取り消す際はJSON参照と補完処理も外してください。
+
 ### マインスイーパーRPG
 
 PythonのPyxelを用いて、マインスイーパーにHP、敵の攻撃、旗による防御要素を追加したゲームを作成しました。
